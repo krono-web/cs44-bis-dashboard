@@ -1,0 +1,26 @@
+"use strict";
+(() => {
+  const history = window.CS44_HISTORY;
+  if (!history) return;
+  const requested = new URLSearchParams(location.search).get("dataset");
+  window.CS44_DATASET = Object.hasOwn(history.years, requested || "") ? requested : "original";
+  if (CS44_DATASET !== "original") window.CS44_DATA = history.years[CS44_DATASET];
+  const select = document.getElementById("dataset-select");
+  select.value = CS44_DATASET;
+  select.addEventListener("change", () => { const url = new URL(location.href); url.searchParams.set("dataset", select.value); location.href = url.href; });
+  const data = window.CS44_DATA;
+  document.getElementById("dataset-note").textContent = CS44_DATASET === "original" ? "Original 2026 analysis · v6.3. The exact recomputation reproduces every saved category result and evidence record." : `${data.meta.year} outlines · verified ${history.ruleCount}-rule v6.3 scoring · all dashboard sections and source search use this year.`;
+  document.querySelector(".rail-tag").textContent = `BIS · ${data.meta.year}`;
+  if (CS44_DATASET === "original") return;
+  document.querySelector(".snapshot>span:last-child").textContent = `${data.meta.year} outlines · harmonized baseline · captured ${data.meta.captureDate.slice(0,10)}`;
+  document.querySelector("#page-title").textContent = `BIS evidence overview · ${data.meta.year}`;
+  const note = document.querySelector("#weekly-trends > .chart-foot");
+  note.textContent = `Teaching weeks from the saved ${data.meta.year} outlines, pooled across sessions. This chart shows within-semester patterns, not annual change. Only positive week-labelled records are included. Zero means no recorded match. Multi-category matches count separately.`;
+  document.querySelector("#method .method-grid").replaceChildren();
+  const p = document.createElement("p");
+  p.textContent = `These ${data.meta.year} outlines are classified with the recovered ${data.meta.ruleVersion} taxonomy (${history.ruleCount} rules), identically for 2024, 2025 and 2026. The 2026 recomputation was checked against every saved original result and evidence record. Semester 2 is preferred, then Semester 1, then another published session in the same year. Missing outlines are excluded from rates. Results are automated, preliminary and not teaching-quality ratings.`;
+  document.querySelector("#method .method-grid").append(p);
+  document.querySelector("#method .source-line").textContent = `Source pipeline commit: a3475d9cce9b54d48329daadbf974e9f174cbc28. Rule file SHA-256: ${history.taxonomySha256}. Capture: ${data.meta.captureDate}.`;
+  document.querySelector(".page-footer>span:last-child").textContent = `${data.meta.year} · consistent historical baseline`;
+  document.querySelector(".ask-disclaimer").textContent = `Preliminary automated ${data.meta.year} classifications under the common historical baseline. No human validation recorded. Multi-category matches count separately. No match does not mean absence. Source links may differ from the saved capture.`;
+})();

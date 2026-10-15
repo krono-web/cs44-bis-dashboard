@@ -1,0 +1,416 @@
+{
+  "version": "2026-10-07-v6.3-client-review",
+  "title": "CS-44 Pedagogical Innovation Taxonomy v6.3",
+  "counting_unit": "One distinct outline item evaluated once per category.",
+  "decision_thresholds": {
+    "positive": 3.0,
+    "high_confidence": 5.0,
+    "status": "provisional_pending_validation"
+  },
+  "policies": {
+    "multi_label": true,
+    "categories_mutually_exclusive": false,
+    "deduplication": "item-category",
+    "rule_alternatives_count_once": true,
+    "review_only_cannot_classify": true
+  },
+  "provenance": {
+    "matrix_sha256": "ea772f2b37669865985c83a1cb7815b51696d765b379379b3e597cc93891f907",
+    "changes_sha256": "5bad936f037e740f8cfac9c763249a5b6754ee7fed8209571f9dc63877dc4a06",
+    "reconstruction_note": "43-row v5 matrix updated by the 19-row client change log; five added rules recovered from its explanations, the adjudication workbook, and exact original data.js record-level scores. Must pass verify_v63.py before use."
+  },
+  "categories": [
+    {
+      "id": "work_integrated_applied",
+      "name": "Work-Integrated and Applied Learning",
+      "definition": "An educational approach that explicitly merges theory with real-world practice and embeds authentic industry, workplace, or community-relevant work and tasks into a unit of study.",
+      "rules": [
+        {
+          "id": "R001",
+          "label": "industry or business partner",
+          "pattern": "industry partner|business partner|partner briefing|pitch to partner|partner's business|partner business",
+          "weight": 4.0,
+          "review_required": false
+        },
+        {
+          "id": "R002",
+          "label": "actual organisation or professional context",
+          "pattern": "actual business organisation|actual business problem|actual business professionals|real organisation|real world partner|real world problem",
+          "weight": 4.0,
+          "review_required": false
+        },
+        {
+          "id": "R003",
+          "label": "authentic practice",
+          "pattern": "authentic situations|authentic problem|authentic industry|workplace project|industry project|consulting project|work-integrated learning|experiential learning",
+          "weight": 4.0,
+          "review_required": false
+        },
+        {
+          "id": "R004",
+          "label": "professional presentation",
+          "pattern": "boardroom presentation|project presentation",
+          "weight": 3.5,
+          "review_required": false
+        },
+        {
+          "id": "R005",
+          "label": "theory-practice integration",
+          "pattern": "theory and practice|theory with real-world practice",
+          "weight": 2.0,
+          "review_required": false
+        },
+        {
+          "id": "R006",
+          "label": "practical teamwork",
+          "pattern": "practical teamwork experience|real-life business problem|real life business problem",
+          "weight": 2.5,
+          "review_required": false
+        },
+        {
+          "id": "R007",
+          "label": "career readiness",
+          "pattern": "career-readiness|career readiness|professional skills|stakeholder engagement|stakeholder management|leadership development",
+          "weight": 2.0,
+          "review_required": false
+        },
+        {
+          "id": "R008",
+          "label": "project immersion",
+          "pattern": "project immersion|project discovery|field immersion",
+          "weight": 2.0,
+          "review_required": false
+        },
+        {
+          "id": "R037",
+          "label": "placement or practicum",
+          "pattern": "internship|professional practicum|field placement",
+          "weight": 4.0,
+          "review_required": false
+        },
+        {
+          "id": "R038",
+          "label": "applied or civic project",
+          "pattern": "applied research project|civic engagement project|social impact project",
+          "weight": 3.5,
+          "review_required": false
+        },
+        {
+          "id": "R044",
+          "label": "generic professional skills",
+          "pattern": "experiential knowledge|applied knowledge|in practice|scenario|hands-on activities|hands-on|practical skill|teamwork|communication|stakeholder|leadership|self-development|development|critical thinking|problem-solving|discovery|real-world|real world|immersion",
+          "weight": 0.5,
+          "review_required": true
+        }
+      ]
+    },
+    {
+      "id": "simulation",
+      "name": "Simulation",
+      "definition": "An instructional method that recreates or mimics real-world scenarios, environments, or processes so learners can practise skills and make decisions safely.",
+      "rules": [
+        {
+          "id": "R009",
+          "label": "explicit simulation",
+          "pattern": "business simulation|lab-based simulation|virtual simulation|simulation-based learning|simulated environment|simulated process",
+          "weight": 4.0,
+          "review_required": false
+        },
+        {
+          "id": "R010",
+          "label": "explicit role play",
+          "pattern": "role-play|role play",
+          "weight": 4.0,
+          "review_required": false
+        },
+        {
+          "id": "R011",
+          "label": "scenario simulation",
+          "pattern": "simulation scenario|scenario simulation|simulated scenario",
+          "weight": 3.5,
+          "review_required": false
+        },
+        {
+          "id": "R040",
+          "label": "scenario-based learning",
+          "pattern": "scenario-based learning|scenario based learning",
+          "weight": 3.5,
+          "review_required": false
+        },
+        {
+          "id": "R046",
+          "label": "simulation activity",
+          "pattern": "simulation|simulate|simulated|simulating",
+          "weight": 4.0,
+          "review_required": false
+        }
+      ]
+    },
+    {
+      "id": "case_based",
+      "name": "Case-Based Learning",
+      "definition": "An active teaching method in which students use real-world scenarios and case studies to build critical-thinking and problem-solving skills.",
+      "rules": [
+        {
+          "id": "R012",
+          "label": "explicit case method",
+          "pattern": "case study analysis|case study practice|case-based learning|case based learning|business case|business case context|real world case",
+          "weight": 4.0,
+          "review_required": false
+        },
+        {
+          "id": "R013",
+          "label": "case activity",
+          "pattern": "case-based exam|case based exam|case competition|case discussion",
+          "weight": 4.0,
+          "review_required": false
+        },
+        {
+          "id": "R014",
+          "label": "explicit scenario method",
+          "pattern": "open-ended business scenarios|real-world scenarios|case scenario",
+          "weight": 4.0,
+          "review_required": false
+        },
+        {
+          "id": "R015",
+          "label": "administrative case-studies label",
+          "pattern": "type: case studies",
+          "weight": 2.5,
+          "review_required": true
+        }
+      ]
+    },
+    {
+      "id": "project_problem_based",
+      "name": "Project- and Problem-Based Learning",
+      "definition": "Learning focused on real-world problems and challenges using problem-solving, decision-making, investigative, and self-directed learning skills.",
+      "rules": [
+        {
+          "id": "R016",
+          "label": "explicit project or problem-based method",
+          "pattern": "project-based learning|project based learning|problem-based learning|problem based learning|challenge-based learning|challenge based learning|agile project|agile method|agile|lean method|lean thinking|lean startup",
+          "weight": 4.0,
+          "review_required": false
+        },
+        {
+          "id": "R017",
+          "label": "authentic problem, challenge or consulting",
+          "pattern": "actual business problem|real-world problem|real world problem|complex challenge|consulting|strategy project|strategic analysis",
+          "weight": 4.0,
+          "review_required": false
+        },
+        {
+          "id": "R018",
+          "label": "project immersion",
+          "pattern": "project immersion",
+          "weight": 3.5,
+          "review_required": false
+        },
+        {
+          "id": "R019",
+          "label": "problem and opportunity scoping",
+          "pattern": "problem & opportunity scoping|problem and opportunity scoping|problem & opportunity|problem and opportunity",
+          "weight": 3.5,
+          "review_required": false
+        },
+        {
+          "id": "R020",
+          "label": "design and prototype method",
+          "pattern": "design thinking|prototype validation|prototype|product development project|market analysis|context analysis|systems thinking",
+          "weight": 3.5,
+          "review_required": false
+        },
+        {
+          "id": "R021",
+          "label": "generic project planning",
+          "pattern": "project planning|implementation planning|feasibility|desirability",
+          "weight": 2.0,
+          "review_required": true
+        },
+        {
+          "id": "R041",
+          "label": "interdisciplinary project",
+          "pattern": "interdisciplinary project|cross-disciplinary|cross disciplinary|interdisciplinary|multi-disciplinary|multidisciplinary",
+          "weight": 3.5,
+          "review_required": false
+        },
+        {
+          "id": "R042",
+          "label": "generic creative thinking",
+          "pattern": "creative thinking|creativity|lateral thinking|lateral and reflective thinking|out of the box|new idea|new product|new service|new process",
+          "weight": 3.0,
+          "review_required": true
+        },
+        {
+          "id": "R045",
+          "label": "generic strategy term",
+          "pattern": "strategy",
+          "weight": 2.0,
+          "review_required": true
+        }
+      ]
+    },
+    {
+      "id": "community_learning",
+      "name": "Community Learning",
+      "definition": "Learning undertaken together with or for communities, including service-learning, field studies, and professional communities of practice.",
+      "rules": [
+        {
+          "id": "R022",
+          "label": "service or community-engaged learning",
+          "pattern": "service-learning|service learning|community-engaged learning|community engaged learning",
+          "weight": 4.0,
+          "review_required": false
+        },
+        {
+          "id": "R023",
+          "label": "community project or field study",
+          "pattern": "community project|social impact project|field study|field studies",
+          "weight": 3.5,
+          "review_required": false
+        },
+        {
+          "id": "R024",
+          "label": "community of practice",
+          "pattern": "community of practice|communities of practice",
+          "weight": 3.5,
+          "review_required": false
+        }
+      ]
+    },
+    {
+      "id": "entrepreneurial_learning",
+      "name": "Entrepreneurial Learning",
+      "definition": "Learning that develops the knowledge, skills, and mindset to recognise opportunities, turn ideas into action, and manage new ventures under uncertainty.",
+      "rules": [
+        {
+          "id": "R025",
+          "label": "explicit entrepreneurship or startup",
+          "pattern": "entrepreneurial learning|entrepreneurship|start-up|startup",
+          "weight": 4.0,
+          "review_required": false
+        },
+        {
+          "id": "R026",
+          "label": "new venture",
+          "pattern": "new venture|manage ventures|venture creation",
+          "weight": 4.0,
+          "review_required": false
+        },
+        {
+          "id": "R027",
+          "label": "product development project",
+          "pattern": "product development project|startup pitch|start-up pitch|pitch competition|innovative solution|new product development",
+          "weight": 3.5,
+          "review_required": false
+        },
+        {
+          "id": "R028",
+          "label": "generic ideation or prototyping",
+          "pattern": "ideation|prototyping|business idea|idea validation|prototype validation|prototype|idea generation",
+          "weight": 3.0,
+          "review_required": true
+        },
+        {
+          "id": "R039",
+          "label": "generic creative solution",
+          "pattern": "creative solution",
+          "weight": 3.0,
+          "review_required": true
+        },
+        {
+          "id": "R043",
+          "label": "generic pitch or competition",
+          "pattern": "pitch|competition|debate",
+          "weight": 2.0,
+          "review_required": true
+        }
+      ]
+    },
+    {
+      "id": "technology_mediated_learning",
+      "name": "Technology-Mediated Learning",
+      "definition": "An instructional environment in which digital devices, networks, or specialised technologies mediate access to content and interaction during learning.",
+      "rules": [
+        {
+          "id": "R029",
+          "label": "immersive or virtual learning",
+          "pattern": "vr-based experiential learning|vr based experiential learning|ar-based experiential learning|ar based experiential learning|virtual simulation",
+          "weight": 4.0,
+          "review_required": false
+        },
+        {
+          "id": "R030",
+          "label": "AI-mediated or digital twin",
+          "pattern": "ai-mediated role-play|ai mediated role play|digital twin exercise|digital twin exercises",
+          "weight": 4.0,
+          "review_required": false
+        },
+        {
+          "id": "R031",
+          "label": "gamification or serious games",
+          "pattern": "gamification|serious game|serious games",
+          "weight": 4.0,
+          "review_required": false
+        },
+        {
+          "id": "R032",
+          "label": "immersive scenario training",
+          "pattern": "immersive scenario training|technology-mediated learning|technology mediated learning",
+          "weight": 3.5,
+          "review_required": false
+        },
+        {
+          "id": "R047",
+          "label": "generative ai mention",
+          "pattern": "generative ai|genai",
+          "weight": 2.0,
+          "review_required": true
+        },
+        {
+          "id": "R048",
+          "label": "ai-enabled learning activity",
+          "pattern": "ai-enabled|ai enabled",
+          "weight": 4.0,
+          "review_required": false
+        }
+      ]
+    },
+    {
+      "id": "hybrid_learning",
+      "name": "Hybrid Learning",
+      "definition": "An education model that mixes face-to-face classroom teaching with online digital instruction.",
+      "rules": [
+        {
+          "id": "R033",
+          "label": "explicit hybrid or blended mode",
+          "pattern": "hybrid learning|blended learning|hyflex",
+          "weight": 4.0,
+          "review_required": false
+        },
+        {
+          "id": "R034",
+          "label": "flipped classroom",
+          "pattern": "flipped classroom|flipped learning",
+          "weight": 4.0,
+          "review_required": false
+        },
+        {
+          "id": "R035",
+          "label": "mixed face-to-face and online",
+          "pattern": "face-to-face and online|face to face and online|mixed-mode learning|mixed mode learning",
+          "weight": 4.0,
+          "review_required": false
+        },
+        {
+          "id": "R036",
+          "label": "self-paced online modules",
+          "pattern": "self-paced online module|self paced online module|self-paced modules",
+          "weight": 3.5,
+          "review_required": false
+        }
+      ]
+    }
+  ]
+}

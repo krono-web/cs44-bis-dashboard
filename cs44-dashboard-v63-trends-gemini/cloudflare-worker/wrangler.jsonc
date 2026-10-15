@@ -1,0 +1,10 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "cs44-evidence-assistant",
+  "main": "worker.js",
+  "compatibility_date": "2026-10-01",
+  "vars": {
+    "GEMINI_MODEL": "gemini-3.5-flash-lite",
+    "ALLOWED_ORIGINS": "https://huaicongyu-stack.github.io"
+  }
+}
