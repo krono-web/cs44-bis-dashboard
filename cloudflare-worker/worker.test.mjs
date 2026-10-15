@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import worker, { index, retrieve, generate } from "./worker.js";
+import worker, { index, retrieve, retrieveAcrossYears, generate } from "./worker.js";
 import datasets from "./datasets.json" with { type: "json" };
 
 test("retrieval uses selected historical dataset and v6.3 evidence", () => {
@@ -13,6 +13,14 @@ test("retrieval uses selected historical dataset and v6.3 evidence", () => {
 test("cross-year question does not silently answer from one year", () => {
   const result = retrieve(index(datasets["2024"]), "compare 2024 and 2025 project evidence", { level:"ALL", category:"ALL", kind:"positive", section:"ALL" });
   assert.equal(result.records.length, 0);
+});
+
+test("cross-year retrieval expands a range and prefixes citation IDs", () => {
+  const result = retrieveAcrossYears("trend between 2024 to 2026", { level:"ALL", category:"ALL", kind:"positive", section:"ALL" });
+  assert.deepEqual(result.scope.years, [2024, 2025, 2026]);
+  assert.equal(result.stats.yearly.length, 3);
+  assert.ok(result.records.length > 0);
+  assert.ok(result.records.every(r => String(r.id).startsWith(`${r.year}:`)));
 });
 
 test("Gemini structured answer must cite supplied IDs", async () => {

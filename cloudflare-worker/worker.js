@@ -20,10 +20,10 @@ function index(data) {
   }));
   return { data, records };
 }
-function retrieve(db, question, filters = {}) {
+function retrieve(db, question, filters = {}, options = {}) {
   const q = question.trim().toLowerCase(), zh = /[\u3400-\u9fff]/.test(q);
   const requestedYears = [...new Set(q.match(/\b20\d{2}\b/g) || [])];
-  const wrongYear = requestedYears.some(y => Number(y) !== Number(db.data.meta?.year));
+  const wrongYear = !options.allowOtherYears && requestedYears.some(y => Number(y) !== Number(db.data.meta?.year));
   const codes = [...new Set((q.match(/\b[a-z]{4}\d{4}\b/g) || []).map(c => c.toUpperCase()))];
   const categories = Object.entries(aliases).filter(([, words]) => words.some(w => q.includes(w))).map(([c]) => c);
   const ug = /\bug\b|undergraduate|本科/.test(q), pg = /\bpg\b|postgraduate|研究生/.test(q);
@@ -35,10 +35,11 @@ function retrieve(db, question, filters = {}) {
   const allowed = new Set(scoped.map(u => u.code));
   let records = db.records.filter(r => allowed.has(r.unit) && (!category.length || category.includes(r.category)) && (kind === "ALL" || r.kind === kind) && (section === "ALL" || r.section === section));
   const terms = (q.match(/[a-z][a-z-]{2,}/g) || []).filter(t => !new Set("which what where why how does the and are for with from have has units unit evidence teaching learning compare show explain please this that about there course courses positive outline review".split(" ")).has(t) && !/^[a-z]{4}\d{4}$/.test(t));
-  const recognized = codes.length || category.length || ug || pg || filters.category !== "ALL" || filters.section !== "ALL" || /evidence|dataset|outline|review|证据|数据|大纲|审核/.test(q);
+  const recognized = requestedYears.length || codes.length || category.length || ug || pg || filters.category !== "ALL" || filters.section !== "ALL" || /evidence|dataset|outline|review|trend|compare|证据|数据|大纲|审核|趋势|比较/.test(q);
   const ranked = records.map(r => ({ r, score: terms.reduce((n, t) => n + (`${r.text} ${r.label} ${r.title} ${r.categoryName} ${r.section}`.toLowerCase().includes(t) ? 1 : 0), 0) })).sort((a,b) => b.score-a.score || a.r.id.localeCompare(b.r.id));
   records = recognized ? ranked.map(x=>x.r) : ranked.filter(x=>x.score>0).map(x=>x.r);
   if (wrongYear) records = [];
+  if (options.prefixYear) records = records.map(r=>({...r,year:Number(db.data.meta.year),id:`${db.data.meta.year}:${r.id}`}));
   const count = rows => ({ records: rows.length, units: new Set(rows.map(r=>r.unit)).size, positive: rows.filter(r=>r.kind==="positive").length, review: rows.filter(r=>r.kind==="review").length });
   const stats = { ...count(records), analysed: scoped.filter(u=>u.status==="selected").length, missing: scoped.filter(u=>u.status!=="selected").map(u=>u.code),
     cohorts: ["UG","PG"].map(l=>({ level:l, analysed:scoped.filter(u=>u.level===l&&u.status==="selected").length, ...count(records.filter(r=>r.level===l)) })),
@@ -49,11 +50,25 @@ function retrieve(db, question, filters = {}) {
   if (wrongYear) summary = zh ? `当前选择的是 ${db.data.meta.year} 年数据，请先切换年份。` : `The selected dataset is ${db.data.meta.year}; change the dataset first.`;
   return { question, scope:{level,categories:category,kind,section,requestedUnits:codes,unknownUnits:unknown,year:db.data.meta?.year,ruleVersion:db.data.meta?.ruleVersion}, stats, summary, records };
 }
+function yearsIn(question,available){const raw=[...new Set((String(question).match(/\b20\d{2}\b/g)||[]).map(Number))].filter(y=>available.includes(y)).sort();return raw.length>=2?available.filter(y=>y>=raw[0]&&y<=raw[raw.length-1]):raw;}
+function retrieveAcrossYears(question,filters={}){
+  const available=Object.keys(indexes).map(Number).filter(Number.isFinite).sort(),years=yearsIn(question,available); if(years.length<2)return null;
+  const parts=years.map(year=>retrieve(indexes[year],question,filters,{allowOtherYears:true,prefixYear:true})),records=parts.flatMap(p=>p.records);
+  const count=rows=>({records:rows.length,units:new Set(rows.map(r=>`${r.year}:${r.unit}`)).size,positive:rows.filter(r=>r.kind==="positive").length,review:rows.filter(r=>r.kind==="review").length});
+  const yearly=parts.map((p,i)=>({year:years[i],analysed:p.stats.analysed,missing:p.stats.missing,...count(p.records),unitCodes:[...new Set(p.records.map(r=>r.unit))].sort()}));
+  return {question,crossYear:true,records,summary:`Cross-year search for ${years.join("–")}: ${records.length} category-evidence records. Missing outlines are excluded, not zero evidence.`,scope:{...parts[0].scope,year:years.join("–"),years},stats:{...count(records),analysed:yearly.reduce((n,y)=>n+y.analysed,0),missing:yearly.flatMap(y=>y.missing.map(code=>`${y.year}:${code}`)),yearly,cohorts:["UG","PG"].map(level=>({level,analysed:parts.reduce((n,p)=>n+(p.stats.cohorts.find(c=>c.level===level)?.analysed||0),0),...count(records.filter(r=>r.level===level))}))}};
+}
 function responseSchema(ids) { return { type:"object", required:["claims","limitation"], properties:{ claims:{type:"array",maxItems:6,items:{type:"object",required:["text","sources"],properties:{text:{type:"string"},sources:{type:"array",minItems:1,items:{type:"string",enum:ids}}}}},limitation:{type:"string"}}}; }
 async function generate(result, env) {
   if (!result.records.length) return { claims:[], limitation:result.summary };
   const selected=[], seen=new Set();
-  for (const r of result.records) if (!seen.has(r.unit)) { selected.push(r); seen.add(r.unit); }
+  if(result.crossYear){
+    const queues=result.scope.years.map(year=>result.records.filter(r=>r.year===year));
+    while(selected.length<24&&queues.some(q=>q.length)) for(const q of queues){
+      let r; while(q.length&&!r){const candidate=q.shift(),key=`${candidate.year}:${candidate.unit}`;if(!seen.has(key)){r=candidate;seen.add(key);}}
+      if(r)selected.push(r); if(selected.length>=24)break;
+    }
+  } else for (const r of result.records) if (!seen.has(r.unit)) { selected.push(r); seen.add(r.unit); }
   for (const r of result.records) if (!selected.includes(r)) selected.push(r);
   const evidence=selected.slice(0,24), ids=evidence.map(r=>r.id), model=env.GEMINI_MODEL || "gemini-3.5-flash-lite";
   const res=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`,{method:"POST",headers:{"Content-Type":"application/json","x-goog-api-key":env.GEMINI_API_KEY},body:JSON.stringify({
@@ -81,10 +96,10 @@ export default { async fetch(request,env) {
   if (!/^application\/json(?:;|$)/i.test(request.headers.get("Content-Type")||"")) return json({error:"Expected JSON."},415,headers);
   let input; try { input=await request.json(); } catch { return json({error:"Invalid JSON."},400,headers); }
   if (typeof input?.question!=="string"||!input.question.trim()||input.question.length>1000) return json({error:"Enter a question of 1–1000 characters."},400,headers);
-  const key=String(input.dataset||"original"); if (!Object.hasOwn(indexes,key)) return json({error:"Invalid dataset year."},400,headers);
-  const filters=input.filters||{}, db=indexes[key], valid={level:["ALL","UG","PG"],category:["ALL",...db.data.categories.map(c=>c.code)],kind:["auto","ALL","positive","review"],section:["ALL",...new Set(db.records.map(r=>r.section))]};
+  const key=String(input.dataset||"original"); if (key!=="multi"&&!Object.hasOwn(indexes,key)) return json({error:"Invalid dataset year."},400,headers);
+  const db=key==="multi"?indexes.original:indexes[key], filters=input.filters||{}, valid={level:["ALL","UG","PG"],category:["ALL",...db.data.categories.map(c=>c.code)],kind:["auto","ALL","positive","review"],section:["ALL",...new Set(db.records.map(r=>r.section))]};
   if (typeof filters!=="object"||Array.isArray(filters)||Object.entries(filters).some(([k,v])=>!valid[k]?.includes(v))) return json({error:"Invalid evidence filters."},400,headers);
-  try { return json(await generate(retrieve(db,input.question,filters),env),200,headers); } catch(e) { return json({error:e.message||"AI request failed."},502,headers); }
+  try { const result=key==="multi"?retrieveAcrossYears(input.question,filters):retrieve(db,input.question,filters); if(!result)return json({error:"A cross-year query must name at least two available years."},400,headers); return json(await generate(result,env),200,headers); } catch(e) { return json({error:e.message||"AI request failed."},502,headers); }
 }};
 
-export { index, retrieve, generate };
+export { index, retrieve, retrieveAcrossYears, generate };

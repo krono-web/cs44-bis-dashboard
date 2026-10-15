@@ -3,6 +3,7 @@
   if (!window.CS44_DATA || !window.CS44Evidence) return;
   const $ = id => document.getElementById(id);
   const db = CS44Evidence.index(window.CS44_DATA);
+  const historyDbs = Object.fromEntries(Object.entries(window.CS44_HISTORY?.years || {}).map(([year, data]) => [year, CS44Evidence.index(data)]));
   let api = window.CS44_ASSISTANT_API || (location.hostname === "127.0.0.1" || location.hostname === "localhost" ? location.origin : "");
   let ready = false;
   let result, shown = 0;
@@ -14,7 +15,7 @@
   function card(r) {
     const article = node("article", undefined, "ask-source"); article.id = "source-" + r.id;
     const heading = node("div", undefined, "ask-source-heading");
-    heading.append(node("strong", r.unit), node("span", r.kind === "positive" ? "Positive signal" : "Review-only", "pill " + (r.kind === "positive" ? "ask-positive" : "preliminary")));
+    heading.append(node("strong", `${r.year ? r.year + " · " : ""}${r.unit}`), node("span", r.kind === "positive" ? "Positive signal" : "Review-only", "pill " + (r.kind === "positive" ? "ask-positive" : "preliminary")));
     article.append(heading, node("p", `${r.categoryName} · ${r.section}`, "ask-source-meta"), node("p", r.label, "ask-source-label"), node("blockquote", r.text));
     article.append(node("p", `Matched phrases: ${r.phrases.join(", ") || "—"}`, "ask-source-meta"));
     const link = node("a", "Open original outline ↗");
@@ -33,13 +34,13 @@
     $("ask-sources").replaceChildren();
     $("ask-results").hidden = false;
     const s = r.scope;
-    $("ask-scope").textContent = `Scope: ${s.year} · ${s.level} · ${s.kind} · ${s.section} · ${s.categories.length ? s.categories.map(c => CS44_DATA.categories.find(x => x.code === c)?.name || c).join(", ") : "All categories"}${s.requestedUnits.length ? " · " + s.requestedUnits.join(", ") : ""}. Uses the selected dataset; other dashboard filters are independent.`;
+    $("ask-scope").textContent = `Scope: ${s.year} · ${s.level} · ${s.kind} · ${s.section} · ${s.categories.length ? s.categories.map(c => CS44_DATA.categories.find(x => x.code === c)?.name || c).join(", ") : "All categories"}${s.requestedUnits.length ? " · " + s.requestedUnits.join(", ") : ""}. ${r.crossYear ? "Uses the same v6.3 rules across requested years." : "Uses the selected dataset; other dashboard filters are independent."}`;
     $("ask-source-count").textContent = `Source evidence (${r.stats.records} records)`;
     const table = $("ask-counts"); table.replaceChildren();
     if (r.stats.records) {
-      const t = node("table"); const cap = node("caption", "Matched records and distinct units in this query");
-      const head = node("tr"); ["Level", "Analysed", "Units matched", "Positive", "Review-only"].forEach(x => head.append(node("th", x))); const thead = node("thead"); thead.append(head);
-      const body = node("tbody"); r.stats.cohorts.forEach(c => { const tr = node("tr"); [c.level, c.analysed, c.units, c.positive, c.review].forEach(x => tr.append(node("td", x))); body.append(tr); }); t.append(cap, thead, body); table.append(t);
+      const t = node("table"); const cap = node("caption", r.crossYear ? "Matched evidence by year" : "Matched records and distinct units in this query");
+      const head = node("tr"); (r.crossYear ? ["Year", "Analysed", "Units matched", "Positive", "Review-only"] : ["Level", "Analysed", "Units matched", "Positive", "Review-only"]).forEach(x => head.append(node("th", x))); const thead = node("thead"); thead.append(head);
+      const body = node("tbody"); (r.crossYear ? r.stats.yearly : r.stats.cohorts).forEach(c => { const tr = node("tr"); [r.crossYear ? c.year : c.level, c.analysed, c.units, c.positive, c.review].forEach(x => tr.append(node("td", x))); body.append(tr); }); t.append(cap, thead, body); table.append(t);
     }
     more();
   }
@@ -49,13 +50,14 @@
     const question = $("ask-question").value.trim(); if (!question) { $("ask-question").focus(); return; }
     const useAI = ready && $("ask-ai").checked;
     if (useAI && !$("ask-access").value) { $("ask-status").textContent = "Enter the access code provided by the dashboard owner to use AI, or turn off AI explanation."; $("ask-access").focus(); return; }
-    const r = CS44Evidence.retrieve(db, question, filters()); showSearch(r);
+    const cross = CS44Evidence.retrieveAcrossYears(historyDbs, question, filters());
+    const r = cross || CS44Evidence.retrieve(db, question, filters()); showSearch(r);
     $("ask-status").textContent = useAI ? "Reading matching evidence…" : "Evidence search complete · no AI model used";
     if (!useAI) return;
     $("ask-submit").disabled = true; $("ask-form").setAttribute("aria-busy", "true");
     document.querySelectorAll("[data-ask]").forEach(b => b.disabled = true);
     try {
-      const response = await fetch(`${api}/api/ask`, { method: "POST", headers: { "Content-Type": "application/json", "Authorization": `Bearer ${$("ask-access").value}` }, body: JSON.stringify({ question, filters: filters(), dataset: window.CS44_DATASET || "original" }), signal: AbortSignal.timeout(45000) });
+      const response = await fetch(`${api}/api/ask`, { method: "POST", headers: { "Content-Type": "application/json", "Authorization": `Bearer ${$("ask-access").value}` }, body: JSON.stringify({ question, filters: filters(), dataset: cross ? "multi" : (window.CS44_DATASET || "original") }), signal: AbortSignal.timeout(45000) });
       const payload = await response.json();
       if (!response.ok) throw new Error(payload.error || "The AI service is unavailable.");
       const answer = node("div");
@@ -63,7 +65,7 @@
         const paragraph = node("p", claim.text + " ");
         claim.sources.forEach(id => {
           const record = r.records.find(x => x.id === id); if (!record) return;
-          const link = node("button", `[${record.unit} · ${record.section}]`, "ask-citation"); link.type = "button";
+          const link = node("button", `[${record.year ? record.year + " · " : ""}${record.unit} · ${record.section}]`, "ask-citation"); link.type = "button";
           link.addEventListener("click", () => { while (!document.getElementById("source-" + id) && shown < result.records.length) more(); const el = document.getElementById("source-" + id); if (el) { el.tabIndex = -1; el.focus(); el.scrollIntoView({ behavior: "smooth", block: "center" }); } });
           paragraph.append(link);
         }); answer.append(paragraph);

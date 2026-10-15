@@ -30,11 +30,11 @@
     }
     return { data, records };
   }
-  function retrieve(db, question, filters = {}) {
+  function retrieve(db, question, filters = {}, options = {}) {
     const q = String(question).trim().toLowerCase();
     const zh = /[\u3400-\u9fff]/.test(q);
     const requestedYears = [...new Set(q.match(/\b20\d{2}\b/g) || [])];
-    const wrongYear = requestedYears.some(y => Number(y) !== Number(db.data.meta?.year));
+    const wrongYear = !options.allowOtherYears && requestedYears.some(y => Number(y) !== Number(db.data.meta?.year));
     const codes = [...new Set((q.match(/\b[a-z]{4}\d{4}\b/g) || []).map(c => c.toUpperCase()))];
     const categoryCodes = Object.entries(aliases).filter(([, words]) => words.some(w => q.includes(w))).map(([c]) => c);
     const mentionsUG = /\bug\b|undergraduate|本科/.test(q), mentionsPG = /\bpg\b|postgraduate|研究生/.test(q);
@@ -49,7 +49,7 @@
     const tokens = q.match(/[a-z][a-z-]{2,}/g) || [];
     const stop = new Set("which what where why how does do the and are for with from have has units unit evidence teaching learning compare between show explain please this that more than about there course courses positive of in is to an all".split(" "));
     const terms = tokens.filter(t => !stop.has(t) && !/^[a-z]{4}\d{4}$/.test(t));
-    const recognized = codes.length || category.length || mentionsUG || mentionsPG || filters.category && filters.category !== "ALL" || filters.section && filters.section !== "ALL" || /evidence|dataset|outline|review|证据|数据|大纲|审核/.test(q);
+    const recognized = requestedYears.length || codes.length || category.length || mentionsUG || mentionsPG || filters.category && filters.category !== "ALL" || filters.section && filters.section !== "ALL" || /evidence|dataset|outline|review|trend|compare|证据|数据|大纲|审核|趋势|比较/.test(q);
     const ranked = records.map(r => {
       const text = `${r.text} ${r.label} ${r.title} ${r.categoryName} ${r.section}`.toLowerCase();
       return { r, score: terms.reduce((n, t) => n + (text.includes(t) ? 1 : 0), 0) };
@@ -57,6 +57,7 @@
     if (!recognized) records = ranked.filter(x => x.score > 0).map(x => x.r);
     else records = ranked.map(x => x.r);
     if (wrongYear) records = [];
+    if (options.prefixYear) records = records.map(r => ({ ...r, year: Number(db.data.meta.year), id: `${db.data.meta.year}:${r.id}` }));
     const count = rows => ({ records: rows.length, units: new Set(rows.map(r => r.unit)).size,
       positive: rows.filter(r => r.kind === "positive").length, review: rows.filter(r => r.kind === "review").length });
     const stats = { ...count(records), analysed: scopedUnits.filter(u => u.status === "selected").length,
@@ -74,5 +75,27 @@
     if (wrongYear) summary = zh ? `当前选择的是 ${db.data.meta.year} 年数据。请用页面顶部的 Dashboard dataset 切换年份；跨年比较请查看 Annual evidence trends。` : `The selected dataset is ${db.data.meta.year}. Change Dashboard dataset at the top for another year; use Annual evidence trends for comparisons across years.`;
     return { question, zh, scope: { ...scope, year: db.data.meta?.year, ruleVersion: db.data.meta?.ruleVersion }, stats, summary, records };
   }
-  return { index, retrieve };
+  function yearsIn(question, available) {
+    const raw = [...new Set((String(question).match(/\b20\d{2}\b/g) || []).map(Number))].filter(y => available.includes(y)).sort();
+    if (raw.length >= 2) return available.filter(y => y >= raw[0] && y <= raw[raw.length - 1]);
+    return raw;
+  }
+  function retrieveAcrossYears(dbs, question, filters = {}) {
+    const available = Object.keys(dbs).map(Number).filter(Number.isFinite).sort();
+    const years = yearsIn(question, available);
+    if (years.length < 2) return null;
+    const parts = years.map(year => retrieve(dbs[year], question, filters, { allowOtherYears: true, prefixYear: true }));
+    const records = parts.flatMap(p => p.records);
+    const count = rows => ({ records: rows.length, units: new Set(rows.map(r => `${r.year}:${r.unit}`)).size,
+      positive: rows.filter(r => r.kind === "positive").length, review: rows.filter(r => r.kind === "review").length });
+    const yearly = parts.map((p, i) => ({ year: years[i], analysed: p.stats.analysed, missing: p.stats.missing, ...count(p.records),
+      unitCodes: [...new Set(p.records.map(r => r.unit))].sort() }));
+    const zh = /[\u3400-\u9fff]/.test(question);
+    const summary = zh ? `跨年检索 ${years.join("–")}：共找到 ${records.length} 条分类证据。请比较各年已分析课程数和证据记录，不要把缺失大纲当作零证据。` :
+      `Cross-year search for ${years.join("–")}: ${records.length} category-evidence records. Compare each year's analysed-course denominator and evidence records; missing outlines are not zero evidence.`;
+    return { question, zh, crossYear: true, records, summary, scope: { ...parts[0].scope, year: years.join("–"), years },
+      stats: { ...count(records), analysed: yearly.reduce((n, y) => n + y.analysed, 0), missing: yearly.flatMap(y => y.missing.map(code => `${y.year}:${code}`)), yearly,
+        cohorts: ["UG", "PG"].map(level => ({ level, analysed: parts.reduce((n,p)=>n+(p.stats.cohorts.find(c=>c.level===level)?.analysed||0),0), ...count(records.filter(r=>r.level===level)) })) } };
+  }
+  return { index, retrieve, retrieveAcrossYears, yearsIn };
 });
