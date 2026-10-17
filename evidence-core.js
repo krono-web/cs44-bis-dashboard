@@ -32,7 +32,7 @@
   }
   function retrieve(db, question, filters = {}, options = {}) {
     const q = String(question).trim().toLowerCase();
-    const zh = /[\u3400-\u9fff]/.test(q);
+    const zh = false;
     const requestedYears = [...new Set(q.match(/\b20\d{2}\b/g) || [])];
     const wrongYear = !options.allowOtherYears && requestedYears.some(y => Number(y) !== Number(db.data.meta?.year));
     const codes = [...new Set((q.match(/\b[a-z]{4}\d{4}\b/g) || []).map(c => c.toUpperCase()))];
@@ -90,7 +90,7 @@
       positive: rows.filter(r => r.kind === "positive").length, review: rows.filter(r => r.kind === "review").length });
     const yearly = parts.map((p, i) => ({ year: years[i], analysed: p.stats.analysed, missing: p.stats.missing, ...count(p.records),
       unitCodes: [...new Set(p.records.map(r => r.unit))].sort() }));
-    const zh = /[\u3400-\u9fff]/.test(question);
+    const zh = false;
     const summary = zh ? `跨年检索 ${years.join("–")}：共找到 ${records.length} 条分类证据。请比较各年已分析课程数和证据记录，不要把缺失大纲当作零证据。` :
       `Cross-year search for ${years.join("–")}: ${records.length} category-evidence records. Compare each year's analysed-course denominator and evidence records; missing outlines are not zero evidence.`;
     return { question, zh, crossYear: true, records, summary, scope: { ...parts[0].scope, year: years.join("–"), years },

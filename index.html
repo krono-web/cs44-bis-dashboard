@@ -12,7 +12,7 @@
 <script defer src="dataset.js?v=v63-exact-1"></script>
 <script defer src="app.js?v=dashboard-polish-2"></script>
 <script defer src="trends.js?v=weekly-1"></script>
-<script defer src="evidence-core.js?v=original-v63-1"></script>
+<script defer src="evidence-core.js?v=english-assistant-1"></script>
 <script defer src="assistant-config.js?v=assistant-1"></script>
 <script defer src="assistant.js?v=original-v63-1"></script>
 <script defer src="annual.js?v=v63-exact-1"></script>
@@ -131,13 +131,13 @@
     <div class="panel ask-shell">
       <div class="ask-intro"><div><h3>Start with a question. Follow the evidence.</h3><p>Search across learning outcomes, assessments and weekly schedules. Read the exact source behind each result.</p></div><span id="ask-dataset"></span></div>
       <div class="ask-examples" aria-label="Example questions">
-        <button type="button" data-ask="哪些课程有项目式教学的证据？">哪些课程采用项目式教学？</button>
+        <button type="button" data-ask="Which units have evidence of project-based learning?">Find project-based learning</button>
         <button type="button" data-ask="Why is INFS6600 classified as project-based learning?">Explain INFS6600</button>
         <button type="button" data-ask="Compare UG and PG case-based evidence">Compare UG / PG cases</button>
       </div>
       <form id="ask-form">
-        <label for="ask-question" class="ask-label">Your question · 支持中文和英文</label>
-        <div class="ask-input-row"><textarea id="ask-question" rows="2" maxlength="1000" required placeholder="例如：INFS6600 的项目式教学证据来自大纲哪一部分？"></textarea><button class="ask-primary" id="ask-submit" type="submit">Ask / 查询 ↗</button></div>
+        <label for="ask-question" class="ask-label">Your question</label>
+        <div class="ask-input-row"><textarea id="ask-question" rows="2" maxlength="1000" required placeholder="For example: Which part of the outline supports INFS6600's project-based classification?"></textarea><button class="ask-primary" id="ask-submit" type="submit">Ask ↗</button></div>
         <div class="ask-filters">
           <label>Study level<select id="ask-level"><option value="ALL">All units</option><option value="UG">Undergraduate</option><option value="PG">Postgraduate</option></select></label>
           <label>Category<select id="ask-category"><option value="ALL">From question / all</option></select></label>

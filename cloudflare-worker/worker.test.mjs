@@ -10,6 +10,12 @@ test("retrieval uses selected historical dataset and v6.3 evidence", () => {
   assert.ok(result.records.every(r => r.unit === "INFS6600" && r.kind === "positive"));
 });
 
+test("assistant responses stay in English for non-English questions", () => {
+  const result = retrieve(index(datasets.original), "哪些课程有项目式教学的证据？", { level:"ALL", category:"ALL", kind:"positive", section:"ALL" });
+  assert.match(result.summary, /^Found /);
+  assert.doesNotMatch(result.summary, /[\u3400-\u9fff]/);
+});
+
 test("cross-year question does not silently answer from one year", () => {
   const result = retrieve(index(datasets["2024"]), "compare 2024 and 2025 project evidence", { level:"ALL", category:"ALL", kind:"positive", section:"ALL" });
   assert.equal(result.records.length, 0);
@@ -29,6 +35,7 @@ test("Gemini structured answer must cite supplied IDs", async () => {
   globalThis.fetch = async (_url, options) => {
     const request = JSON.parse(options.body);
     assert.equal(request.generationConfig.responseMimeType, "application/json");
+    assert.match(request.systemInstruction.parts[0].text, /Answer in English only/);
     const id = result.records[0].id;
     return new Response(JSON.stringify({ candidates:[{content:{parts:[{text:JSON.stringify({claims:[{text:"Supported",sources:[id]}],limitation:"Automated evidence."})}]}}] }), {status:200,headers:{"Content-Type":"application/json"}});
   };
