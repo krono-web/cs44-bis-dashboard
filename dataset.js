@@ -2,14 +2,15 @@
 (() => {
   const history = window.CS44_HISTORY;
   if (!history) return;
-  const requested = new URLSearchParams(location.search).get("dataset");
-  window.CS44_DATASET = Object.hasOwn(history.years, requested || "") ? requested : "original";
+  const requestedRaw = new URLSearchParams(location.search).get("dataset");
+  const requested = requestedRaw === "2026" ? "original" : requestedRaw;
+  window.CS44_DATASET = ["2024","2025","original"].includes(requested) ? requested : "original";
   if (CS44_DATASET !== "original") window.CS44_DATA = history.years[CS44_DATASET];
   const select = document.getElementById("dataset-select");
   select.value = CS44_DATASET;
   select.addEventListener("change", () => { const url = new URL(location.href); url.searchParams.set("dataset", select.value); location.href = url.href; });
   const data = window.CS44_DATA;
-  document.getElementById("dataset-note").textContent = CS44_DATASET === "original" ? "Original 2026 analysis · v6.3. The exact recomputation reproduces every saved category result and evidence record." : `${data.meta.year} outlines · verified ${history.ruleCount}-rule v6.3 scoring · all dashboard sections and source search use this year.`;
+  document.getElementById("dataset-note").textContent = `${data.meta.year} outlines · verified ${history.ruleCount}-rule v6.3 scoring · all dashboard sections and source search use this year.`;
   document.querySelector(".rail-tag").textContent = `BIS · ${data.meta.year}`;
   if (CS44_DATASET === "original") return;
   document.querySelector(".snapshot>span:last-child").textContent = `${data.meta.year} outlines · harmonized baseline · captured ${data.meta.captureDate.slice(0,10)}`;
