@@ -121,8 +121,8 @@ mark.hit.review{background:#e2d9ff;border-bottom:2px dotted #6a4fc4;border-radiu
 /* 761-1000px: the explorer has stacked to one column but all eight columns still show. */
 
 
-/* ---- Columns after POS CATS was removed: 1 unit · 2 level · 3 categories ·
-   4 evidence items · 5 total score · 6 review · 7 coverage. The table shares its
+/* ---- Unit table columns: 1 unit · 2 level · 3 categories ·
+   4 evidence items · 5 total score · 6 review. The table shares its
    row with the detail panel, so shed the numeric columns as the width drops. ---- */
 @media (min-width:1001px) and (max-width:1500px){
   .unit-table th:nth-child(6),.unit-table td:nth-child(6){display:none}       /* review */
@@ -177,3 +177,11 @@ mark.hit.review{background:#e2d9ff;border-bottom:2px dotted #6a4fc4;border-radiu
 @media(max-width:600px){.ask-shell{padding:17px}.ask-intro{display:block}.ask-intro>span{display:block;max-width:none;text-align:left;margin-top:12px}.ask-input-row{flex-direction:column}.ask-primary{padding:13px}.ask-filters{grid-template-columns:1fr}#assistant .section-heading{align-items:start;flex-direction:column}.ask-source-heading{flex-wrap:wrap}.ask-ai-options>label{min-width:0}}
 
 .dataset-toolbar{padding:16px;background:#e9f0fa;border:1px solid #c6d7ed;border-radius:9px;margin:20px 0;display:flex;gap:12px;align-items:center;flex-wrap:wrap;font-size:.8125rem}.dataset-toolbar select{padding:9px;border:1px solid #b5c7dd;border-radius:6px;max-width:100%}.dataset-toolbar p{flex-basis:100%;margin:0;color:var(--muted);line-height:1.6}.annual-controls{grid-template-columns:1.3fr 1fr;max-width:800px}.annual-notice{border-left:3px solid #43868f;background:#edf4f7;padding:12px 16px;font-size:.8125rem;line-height:1.7}.annual-details{padding:16px 20px;margin-top:12px;font-size:.8125rem}.annual-details summary{cursor:pointer;font-weight:600}.annual-details>p{line-height:1.7;color:var(--muted)}#annual-trends{scroll-margin-top:20px}@media(max-width:600px){.annual-controls{grid-template-columns:1fr}}
+
+/* Dashboard polish: semantic colour, source comparison and glossary */
+.panel{box-shadow:0 10px 28px rgba(19,43,68,.055);transition:box-shadow .2s ease,transform .2s ease}.panel:hover{box-shadow:0 14px 34px rgba(19,43,68,.085)}
+.bar-fill{background:linear-gradient(90deg,#2563a8,#2d8c9d)}.compare-fill{background:#2e6db1}.compare-fill.pg{background:#b56b2c}.assessment-dot,.compare-fill.assessment{background:#6356a5}.activity-dot,.compare-fill.activity{background:#168476}
+.source-comparison{margin-top:22px}.source-compare-chart{padding:4px 23px 8px}.source-compare-row{display:grid;grid-template-columns:minmax(180px,.8fr) minmax(260px,1.4fr);gap:18px;align-items:center;padding:11px 0;border-bottom:1px solid #edf1f5}.source-compare-row:last-child{border-bottom:0}.source-compare-row.zero{opacity:.55}.source-pair{display:grid;gap:7px}.source-bar-line{display:grid;grid-template-columns:78px minmax(80px,1fr) 48px;gap:9px;align-items:center}.source-bar-line strong{text-align:right;font-size:.75rem;font-variant-numeric:tabular-nums}.source-tag{font-size:.6875rem;color:var(--muted)}
+#glossary{scroll-margin-top:20px;margin-top:34px}.section-intro{color:var(--muted);margin:.4rem 0 0}.glossary-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}.glossary-card{border:1px solid var(--line);border-top:3px solid #2d8c9d;border-radius:9px;background:linear-gradient(145deg,#fff,#f7fafc);padding:17px 18px}.glossary-card:nth-child(3n+2){border-top-color:#2e6db1}.glossary-card:nth-child(3n){border-top-color:#b56b2c}.glossary-card h3{margin:0 0 7px;font-size:.9rem;color:var(--navy)}.glossary-card p{margin:0;color:var(--muted);font-size:.78rem;line-height:1.65}
+@media(max-width:1000px){.glossary-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:700px){.glossary-grid{grid-template-columns:1fr}.source-compare-chart{padding-left:16px;padding-right:16px}.source-compare-row{grid-template-columns:1fr;gap:7px}.source-bar-line{grid-template-columns:70px minmax(70px,1fr) 44px}}

@@ -7,7 +7,7 @@ const esc = value => String(value ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;",
 if (!data || !data.units) { $("metrics").innerHTML='<p class="empty">The saved dataset could not be loaded. Reload this page.</p>'; return; }
 const order=["work_integrated_applied","project_problem_based","case_based","entrepreneurial_learning","community_learning","hybrid_learning","simulation","technology_mediated_learning"];
 const names={work_integrated_applied:"Work-integrated & applied",project_problem_based:"Project & problem-based",case_based:"Case-based",entrepreneurial_learning:"Entrepreneurial",community_learning:"Community",hybrid_learning:"Hybrid",simulation:"Simulation",technology_mediated_learning:"Technology-mediated"};
-const state={level:"ALL",measure:"count",category:"ALL",search:"",selected:"INFS6600",sections:"rate",rankCategory:"project_problem_based",rankMeasure:"share",rankZero:false,expanded:new Set(),strength:"ALL",section:"ALL",only:"ALL",sortKey:"code",sortDir:1,compare:"rate"};
+const state={level:"ALL",measure:"count",category:"ALL",search:"",selected:"INFS6600",sections:"rate",sourceCompare:"rate",rankCategory:"project_problem_based",rankMeasure:"share",rankZero:false,expanded:new Set(),strength:"ALL",section:"ALL",only:"ALL",sortKey:"code",sortDir:1,compare:"rate"};
 const cat = (unit, code) => unit.categories.find(c => c.code===code);
 const positiveCount = unit => unit.categories.filter(c=>c.positive===true).length;
 const percent = (n,d) => d ? (100*n/d).toFixed(1) : "0.0";
@@ -129,8 +129,7 @@ function renderUnits() {
    +'<td class="dots-cell">'+(ok(u)?'<span class="cat-dots" aria-label="'+esc(order.filter(c=>cat(u,c)?.positive).map(c=>names[c]).join(", ")||"No positive category")+'">'+dots+'</span>':"—")+'</td>'
    +'<td class="count-cell">'+(ok(u)?totalItems(u):"—")+'</td>'
    +'<td class="count-cell score-cell">'+(ok(u)?formatScore(totalScore(u)):"—")+'</td>'
-   +'<td class="count-cell'+(ok(u)&&totalReview(u)?" review-number":"")+'">'+(ok(u)?totalReview(u):"—")+'</td>'
-   +'<td><span class="coverage '+(ok(u)?"available":"missing")+'">'+(ok(u)?"Available":"Missing")+'</span></td></tr>';
+   +'<td class="count-cell'+(ok(u)&&totalReview(u)?" review-number":"")+'">'+(ok(u)?totalReview(u):"—")+'</td></tr>';
  }).join("");
  document.querySelectorAll(".sort-th").forEach(b=>{b.classList.toggle("active",b.dataset.sort===state.sortKey);b.dataset.dir=state.sortDir>0?"asc":"desc";});
  $("empty").hidden=!!units.length;
@@ -205,6 +204,29 @@ function renderSections(){
   return '<div class="stack-row'+(r.total?"":" zero")+'"><span class="bar-name">'+names[r.code]+'</span><span class="stack-track" aria-label="'+esc(names[r.code]+": "+r.counts.map((n,i)=>n+" "+SECTIONS[i]).join(", "))+'">'+segs+'</span><span class="bar-number">'+r.total+'</span></div>';
  }).join("");
 }
+function renderSourceComparison(){
+ const units=evaluated();
+ const rows=order.map(code=>{
+  let assessment=0,activities=0;
+  for(const u of units) for(const e of evidenceFor(u.code,code)) if(e.k==="p"){
+   if(e.s==="Assessment"||e.s==="Assessment detail") assessment++;
+   if(e.s==="Weekly schedule") activities++;
+  }
+  return {code,assessment,activities,total:assessment+activities};
+ }).sort((a,b)=>b.total-a.total||order.indexOf(a.code)-order.indexOf(b.code));
+ const max=Math.max(1,...rows.flatMap(r=>[r.assessment,r.activities]));
+ $("source-comparison").innerHTML=rows.map(r=>{
+  const denom=r.total||1;
+  const av=state.sourceCompare==="rate"?100*r.assessment/denom:r.assessment;
+  const lv=state.sourceCompare==="rate"?100*r.activities/denom:r.activities;
+  const aw=state.sourceCompare==="rate"?av:100*av/max;
+  const lw=state.sourceCompare==="rate"?lv:100*lv/max;
+  const label=v=>state.sourceCompare==="rate"?v.toFixed(0)+"%":v;
+  return '<div class="source-compare-row'+(r.total?'':' zero')+'"><span class="compare-name">'+names[r.code]+'</span><div class="source-pair"><div class="source-bar-line"><span class="source-tag">Assessment</span><span class="compare-track"><span class="compare-fill assessment" style="display:block;width:'+aw+'%"></span></span><strong>'+label(av)+'</strong></div><div class="source-bar-line"><span class="source-tag">Activities</span><span class="compare-track"><span class="compare-fill activity" style="display:block;width:'+lw+'%"></span></span><strong>'+label(lv)+'</strong></div></div></div>';
+ }).join("");
+ const totalA=rows.reduce((n,r)=>n+r.assessment,0),totalL=rows.reduce((n,r)=>n+r.activities,0);
+ $("source-compare-foot").textContent=(state.sourceCompare==="rate"?"Within each category, the two percentages divide Assessment and Learning Activities records and total 100% when either source has evidence. ":"Bars use a shared item-count scale across all categories. ")+`Current scope: ${units.length} analysed units · ${totalA} assessment records · ${totalL} learning-activity records. Other outline sections are excluded.`;
+}
 const RANK_FOOT={
  share:"This category's positive items as a share of all positive items in the same unit. This removes the advantage a longer outline would otherwise have.",
  score:"Total score for this category. Weights are provisional, so treat the order as indicative.",
@@ -265,7 +287,7 @@ function exportCsv(){
  a.download="cs44-evidence-"+(state.category==="ALL"?"all":state.category)+".csv";
  document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(a.href),2000);
 }
-function render(){renderMetrics();renderDistribution();renderSections();renderSpread();renderRanking();renderUnits();}
+function render(){renderMetrics();renderDistribution();renderSections();renderSourceComparison();renderSpread();renderRanking();renderUnits();}
 function reset(){state.level="ALL";state.category="ALL";state.search="";state.selected="INFS6600";state.rankZero=false;state.expanded.clear();state.strength="ALL";state.section="ALL";state.only="ALL";state.sortKey="code";state.sortDir=1;$("strength").value="ALL";$("section").value="ALL";$("only").value="ALL";$("search").value="";$("category").value="ALL";document.querySelectorAll("[data-level]").forEach(b=>b.setAttribute("aria-pressed",b.dataset.level==="ALL"));render();}
 const syncLevel=()=>document.querySelectorAll("[data-level]").forEach(x=>x.setAttribute("aria-pressed",String(x.dataset.level===state.level)));
 document.querySelectorAll("[data-level]").forEach(b=>b.addEventListener("click",()=>{state.level=b.dataset.level;syncLevel();render();}));
@@ -284,6 +306,7 @@ $("search").addEventListener("input",e=>{state.search=e.target.value;renderUnits
 $("units").addEventListener("click",e=>{const b=e.target.closest("[data-unit]");if(!b)return;state.selected=b.dataset.unit;renderUnits();});
 $("reset").addEventListener("click",reset);$("empty-reset").addEventListener("click",reset);
 document.querySelectorAll("[data-sections]").forEach(b=>b.addEventListener("click",()=>{state.sections=b.dataset.sections;document.querySelectorAll("[data-sections]").forEach(x=>x.setAttribute("aria-pressed",x===b));renderSections();}));
+document.querySelectorAll("[data-source-compare]").forEach(b=>b.addEventListener("click",()=>{state.sourceCompare=b.dataset.sourceCompare;document.querySelectorAll("[data-source-compare]").forEach(x=>x.setAttribute("aria-pressed",String(x===b)));renderSourceComparison();}));
 document.querySelectorAll("[data-rank]").forEach(b=>b.addEventListener("click",()=>{state.rankMeasure=b.dataset.rank;document.querySelectorAll("[data-rank]").forEach(x=>x.setAttribute("aria-pressed",x===b));renderRanking();}));
 $("rank-category").addEventListener("change",e=>{state.rankCategory=e.target.value;renderRanking();});
 $("rank-toggle-zero").addEventListener("click",()=>{state.rankZero=!state.rankZero;renderRanking();});

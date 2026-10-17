@@ -6,11 +6,11 @@
 <meta name="description" content="Explore preliminary teaching innovation evidence across 27 BIS units, compare undergraduate and postgraduate results, and inspect unit classifications.">
 <meta name="theme-color" content="#132b44">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
-<link rel="stylesheet" href="styles.css?v=original-v63-1">
+<link rel="stylesheet" href="styles.css?v=dashboard-polish-2">
 <script defer src="data.js?v=87cd2690"></script>
 <script defer src="history-data.js?v=v63-exact-1"></script>
 <script defer src="dataset.js?v=v63-exact-1"></script>
-<script defer src="app.js?v=v63-exact-1"></script>
+<script defer src="app.js?v=dashboard-polish-2"></script>
 <script defer src="trends.js?v=weekly-1"></script>
 <script defer src="evidence-core.js?v=original-v63-1"></script>
 <script defer src="assistant-config.js?v=assistant-1"></script>
@@ -28,6 +28,7 @@
     <a class="nav-link" href="#weekly-trends"><span aria-hidden="true">↗</span> Weekly trends</a>
     <a class="nav-link" href="#insights"><span aria-hidden="true">◫</span> Evidence breakdown</a>
     <a class="nav-link" href="#explorer"><span aria-hidden="true">☷</span> Unit explorer</a>
+    <a class="nav-link" href="#glossary"><span aria-hidden="true">Aa</span> Glossary</a>
     <a class="nav-link" href="#assistant"><span aria-hidden="true">◎</span> Evidence assistant</a>
     <a class="nav-link" href="#method"><span aria-hidden="true">ⓘ</span> About the data</a>
   </nav>
@@ -48,10 +49,10 @@
         <div id="overlap-spread" class="spread-row"></div><p class="chart-foot">Categories overlap, so the labels add up to more than the number of units. The amber bar shows review-only items and appears when the chart is measured in items. Zero is no positive evidence in the saved outline, which is not the same as the method being absent.</p>
       </section>
       <section class="panel comparison" aria-labelledby="comparison-title">
-        <div class="panel-head"><div><h2 id="comparison-title">UG / PG comparison</h2><p id="comparison-sub">Share of analysed units</p></div><div class="segmented compact" role="group" aria-label="Comparison measure"><button data-compare="rate" aria-pressed="true">%</button><button data-compare="items" aria-pressed="false">Items</button><button data-compare="score" aria-pressed="false">Score</button></div></div>
+        <div class="panel-head"><div><h2 id="comparison-title">UG / PG teaching category comparison</h2><p id="comparison-sub">Percentage of analysed units with positive evidence</p></div><div class="segmented compact" role="group" aria-label="Comparison measure"><button data-compare="rate" aria-pressed="true">%</button><button data-compare="items" aria-pressed="false">Items</button><button data-compare="score" aria-pressed="false">Score</button></div></div>
         <div class="legend" id="comparison-legend"></div>
         <div id="comparison" class="comparison-chart"></div>
-        <p class="chart-foot">Full-cohort comparison; independent of the study-level filter. Unit share and evidence volume can point in different directions.</p>
+        <p class="chart-foot">The percentage view divides positive units by analysed units within each cohort, so UG and PG can be compared despite different cohort sizes. Categories overlap and percentages do not add to 100%. Items and Score show evidence volume, not prevalence.</p>
       </section>
     </div>
   </section>
@@ -77,6 +78,12 @@
         <div id="sections" class="stack-chart"></div>
         <p class="chart-foot">Positive evidence items only. Categories found mainly in learning outcomes may reflect shared outcome wording rather than a distinct teaching activity.</p>
       </section>
+      <section class="panel source-comparison" aria-labelledby="source-compare-title">
+        <div class="panel-head"><div><h2 id="source-compare-title">Assessment vs Learning Activities</h2><p>Where positive teaching-category evidence is recorded</p></div><div class="segmented compact" role="group" aria-label="Assessment and learning activities chart measure"><button data-source-compare="rate" aria-pressed="true">%</button><button data-source-compare="count" aria-pressed="false">Items</button></div></div>
+        <div class="legend"><span><i class="dot assessment-dot"></i> Assessment</span><span><i class="dot activity-dot"></i> Learning activities</span></div>
+        <div id="source-comparison" class="source-compare-chart"></div>
+        <p class="chart-foot" id="source-compare-foot">Assessment combines “Assessment” and “Assessment detail”. Learning Activities uses positive evidence from the weekly schedule. Percentages show each source’s share of these two sources within a category; other outline sections are excluded from this comparison.</p>
+      </section>
     </div>
     <div class="insight-row">
       <section class="panel" aria-labelledby="ranking-title">
@@ -95,11 +102,28 @@
     <p class="filter-note" id="filter-note" hidden></p>
     <div class="explorer-grid">
       <section class="panel unit-list-panel" aria-label="Unit results">
-        <div class="table-scroll"><table class="unit-table"><thead><tr><th scope="col"><button class="sort-th" data-sort="code">UNIT</button></th><th scope="col"><button class="sort-th" data-sort="level">LEVEL</button></th><th scope="col">CATEGORIES</th><th scope="col" class="num"><button class="sort-th" data-sort="items">EVID<br>ITEMS</button></th><th scope="col" class="num"><button class="sort-th" data-sort="score">TOTAL<br>SCORE</button></th><th scope="col" class="num"><button class="sort-th" data-sort="review">REVIEW</button></th><th scope="col">COVERAGE</th></tr></thead><tbody id="units"></tbody></table></div>
+        <div class="table-scroll"><table class="unit-table"><thead><tr><th scope="col"><button class="sort-th" data-sort="code">UNIT</button></th><th scope="col"><button class="sort-th" data-sort="level">LEVEL</button></th><th scope="col">CATEGORIES</th><th scope="col" class="num"><button class="sort-th" data-sort="items">EVID<br>ITEMS</button></th><th scope="col" class="num"><button class="sort-th" data-sort="score">TOTAL<br>SCORE</button></th><th scope="col" class="num"><button class="sort-th" data-sort="review">REVIEW</button></th></tr></thead><tbody id="units"></tbody></table></div>
         <div id="empty" class="empty" hidden><strong>No units match these filters</strong><p>Try another name or reset the filters.</p><button class="secondary-button" id="empty-reset">Reset filters</button></div>
         <div class="list-foot">Select a unit to inspect its category results.</div>
       </section>
       <section class="panel detail-panel" id="unit-detail" aria-label="Selected unit details" aria-live="polite"></section>
+    </div>
+  </section>
+  <section id="glossary" aria-labelledby="glossary-title">
+    <div class="section-heading"><div><p class="eyebrow">TERMS & INTERPRETATION</p><h2 id="glossary-title">Glossary</h2><p class="section-intro">Plain-language definitions for the labels used throughout this dashboard.</p></div></div>
+    <div class="glossary-grid">
+      <article class="glossary-card"><h3>UG</h3><p>Undergraduate units. Percentages use only analysed UG units as the denominator.</p></article>
+      <article class="glossary-card"><h3>PG</h3><p>Postgraduate units. Percentages use only analysed PG units as the denominator.</p></article>
+      <article class="glossary-card"><h3>Positive evidence</h3><p>Saved outline text that matched at least one positive v6.3 taxonomy rule. It is an evidence signal, not a rating of teaching quality.</p></article>
+      <article class="glossary-card"><h3>Review-only</h3><p>Wording that may be relevant but cannot classify a unit by itself. It remains separate for later human review.</p></article>
+      <article class="glossary-card"><h3>Positive unit</h3><p>A unit with at least one positive evidence record for the selected teaching category.</p></article>
+      <article class="glossary-card"><h3>Evidence item</h3><p>One matched piece of outline text. A sentence may contribute to more than one category when it matches several rules.</p></article>
+      <article class="glossary-card"><h3>Score</h3><p>The sum of provisional taxonomy-rule weights attached to positive evidence. Scores support exploration and are not quality marks.</p></article>
+      <article class="glossary-card"><h3>Teaching category</h3><p>One of eight pedagogical approaches in taxonomy v6.3, such as project-based, case-based or simulation learning.</p></article>
+      <article class="glossary-card"><h3>Assessment</h3><p>Positive evidence found in the Assessment or Assessment detail sections of an outline.</p></article>
+      <article class="glossary-card"><h3>Learning Activities</h3><p>Positive evidence found in the Weekly schedule, including labelled lectures, seminars, tutorials and other scheduled activities.</p></article>
+      <article class="glossary-card"><h3>Analysed unit</h3><p>A unit with an eligible saved outline for the selected year. Missing outlines are excluded from percentage denominators.</p></article>
+      <article class="glossary-card"><h3>Common cohort</h3><p>The same 22 courses available in 2024, 2025 and 2026, used to reduce distortion from changing course availability.</p></article>
     </div>
   </section>
   <section id="assistant" aria-labelledby="assistant-title">

@@ -11,6 +11,12 @@ categories, how many units carry positive evidence, how many evidence items ther
 are, the score those items add up to, and how much is still waiting on review.
 Every figure can be opened down to the sentence in the outline that produced it.
 
+The overview includes a cohort-normalised UG/PG percentage comparison. The
+evidence breakdown also compares positive records found in assessment sections
+with records found in weekly learning activities. A page glossary explains the
+main analytical terms and interpretation limits. These displays aggregate the
+saved v6.3 results; they do not change or re-run the classification rules.
+
 ## Files
 
 | File | Purpose |
