@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import worker, { index, retrieve, retrieveAcrossYears, generate } from "./worker.js";
+import worker, { index, retrieve, retrieveAcrossYears, generate, resolveDatasetKey } from "./worker.js";
 import datasets from "./datasets.json" with { type: "json" };
 
 test("retrieval uses selected historical dataset and v6.3 evidence", () => {
@@ -27,6 +27,15 @@ test("cross-year retrieval expands a range and prefixes citation IDs", () => {
   assert.equal(result.stats.yearly.length, 3);
   assert.ok(result.records.length > 0);
   assert.ok(result.records.every(r => String(r.id).startsWith(`${r.year}:`)));
+});
+
+test("a year named in the question overrides the page dataset", () => {
+  assert.equal(resolveDatasetKey("what learning methods contain by INFS6015 in 2024", "original"), "2024");
+  assert.equal(resolveDatasetKey("compare 2024 to 2026", "original"), "multi");
+  assert.equal(resolveDatasetKey("what methods are in INFS6015", "2025"), "2025");
+  const result = retrieve(index(datasets[resolveDatasetKey("INFS6015 in 2024", "original")]), "INFS6015 in 2024", { level:"ALL", category:"ALL", kind:"positive", section:"ALL" });
+  assert.equal(result.scope.year, 2024);
+  assert.ok(result.records.every(r => r.unit === "INFS6015"));
 });
 
 test("Gemini structured answer must cite supplied IDs", async () => {

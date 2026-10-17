@@ -51,6 +51,10 @@ function retrieve(db, question, filters = {}, options = {}) {
   return { question, scope:{level,categories:category,kind,section,requestedUnits:codes,unknownUnits:unknown,year:db.data.meta?.year,ruleVersion:db.data.meta?.ruleVersion}, stats, summary, records };
 }
 function yearsIn(question,available){const raw=[...new Set((String(question).match(/\b20\d{2}\b/g)||[]).map(Number))].filter(y=>available.includes(y)).sort();return raw.length>=2?available.filter(y=>y>=raw[0]&&y<=raw[raw.length-1]):raw;}
+function resolveDatasetKey(question,requestedKey="original"){
+  const years=yearsIn(question,Object.keys(indexes).map(Number).filter(Number.isFinite).sort());
+  return years.length>1?"multi":years.length===1?String(years[0]):String(requestedKey||"original");
+}
 function retrieveAcrossYears(question,filters={}){
   const available=Object.keys(indexes).map(Number).filter(Number.isFinite).sort(),years=yearsIn(question,available); if(years.length<2)return null;
   const parts=years.map(year=>retrieve(indexes[year],question,filters,{allowOtherYears:true,prefixYear:true})),records=parts.flatMap(p=>p.records);
@@ -96,10 +100,10 @@ export default { async fetch(request,env) {
   if (!/^application\/json(?:;|$)/i.test(request.headers.get("Content-Type")||"")) return json({error:"Expected JSON."},415,headers);
   let input; try { input=await request.json(); } catch { return json({error:"Invalid JSON."},400,headers); }
   if (typeof input?.question!=="string"||!input.question.trim()||input.question.length>1000) return json({error:"Enter a question of 1–1000 characters."},400,headers);
-  const key=String(input.dataset||"original"); if (key!=="multi"&&!Object.hasOwn(indexes,key)) return json({error:"Invalid dataset year."},400,headers);
+  const key=resolveDatasetKey(input.question,input.dataset); if (key!=="multi"&&!Object.hasOwn(indexes,key)) return json({error:"Invalid dataset year."},400,headers);
   const db=key==="multi"?indexes.original:indexes[key], filters=input.filters||{}, valid={level:["ALL","UG","PG"],category:["ALL",...db.data.categories.map(c=>c.code)],kind:["auto","ALL","positive","review"],section:["ALL",...new Set(db.records.map(r=>r.section))]};
   if (typeof filters!=="object"||Array.isArray(filters)||Object.entries(filters).some(([k,v])=>!valid[k]?.includes(v))) return json({error:"Invalid evidence filters."},400,headers);
   try { const result=key==="multi"?retrieveAcrossYears(input.question,filters):retrieve(db,input.question,filters); if(!result)return json({error:"A cross-year query must name at least two available years."},400,headers); return json(await generate(result,env),200,headers); } catch(e) { return json({error:e.message||"AI request failed."},502,headers); }
 }};
 
-export { index, retrieve, retrieveAcrossYears, generate };
+export { index, retrieve, retrieveAcrossYears, generate, resolveDatasetKey };

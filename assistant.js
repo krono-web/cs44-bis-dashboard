@@ -34,7 +34,7 @@
     $("ask-sources").replaceChildren();
     $("ask-results").hidden = false;
     const s = r.scope;
-    $("ask-scope").textContent = `Scope: ${s.year} · ${s.level} · ${s.kind} · ${s.section} · ${s.categories.length ? s.categories.map(c => CS44_DATA.categories.find(x => x.code === c)?.name || c).join(", ") : "All categories"}${s.requestedUnits.length ? " · " + s.requestedUnits.join(", ") : ""}. ${r.crossYear ? "Uses the same v6.3 rules across requested years." : "Uses the selected dataset; other dashboard filters are independent."}`;
+    $("ask-scope").textContent = `Scope: ${s.year} · ${s.level} · ${s.kind} · ${s.section} · ${s.categories.length ? s.categories.map(c => CS44_DATA.categories.find(x => x.code === c)?.name || c).join(", ") : "All categories"}${s.requestedUnits.length ? " · " + s.requestedUnits.join(", ") : ""}. ${r.crossYear ? "Uses the same v6.3 rules across requested years." : r.autoYear ? "Year selected automatically from the question." : "Uses the selected dataset; other dashboard filters are independent."}`;
     $("ask-source-count").textContent = `Source evidence (${r.stats.records} records)`;
     const table = $("ask-counts"); table.replaceChildren();
     if (r.stats.records) {
@@ -50,14 +50,19 @@
     const question = $("ask-question").value.trim(); if (!question) { $("ask-question").focus(); return; }
     const useAI = ready && $("ask-ai").checked;
     if (useAI && !$("ask-access").value) { $("ask-status").textContent = "Enter the access code provided by the dashboard owner to use AI, or turn off AI explanation."; $("ask-access").focus(); return; }
-    const cross = CS44Evidence.retrieveAcrossYears(historyDbs, question, filters());
-    const r = cross || CS44Evidence.retrieve(db, question, filters()); showSearch(r);
+    const requestedYears = CS44Evidence.yearsIn(question, Object.keys(historyDbs).map(Number));
+    const cross = requestedYears.length > 1 ? CS44Evidence.retrieveAcrossYears(historyDbs, question, filters()) : null;
+    const routedDb = requestedYears.length === 1 ? historyDbs[requestedYears[0]] : db;
+    const r = cross || CS44Evidence.retrieve(routedDb, question, filters());
+    if (!cross && requestedYears.length === 1 && Number(CS44_DATA.meta.year) !== requestedYears[0]) r.autoYear = true;
+    showSearch(r);
     $("ask-status").textContent = useAI ? "Reading matching evidence…" : "Evidence search complete · no AI model used";
     if (!useAI) return;
     $("ask-submit").disabled = true; $("ask-form").setAttribute("aria-busy", "true");
     document.querySelectorAll("[data-ask]").forEach(b => b.disabled = true);
     try {
-      const response = await fetch(`${api}/api/ask`, { method: "POST", headers: { "Content-Type": "application/json", "Authorization": `Bearer ${$("ask-access").value}` }, body: JSON.stringify({ question, filters: filters(), dataset: cross ? "multi" : (window.CS44_DATASET || "original") }), signal: AbortSignal.timeout(45000) });
+      const routedDataset = cross ? "multi" : requestedYears.length === 1 ? String(requestedYears[0]) : (window.CS44_DATASET || "original");
+      const response = await fetch(`${api}/api/ask`, { method: "POST", headers: { "Content-Type": "application/json", "Authorization": `Bearer ${$("ask-access").value}` }, body: JSON.stringify({ question, filters: filters(), dataset: routedDataset }), signal: AbortSignal.timeout(45000) });
       const payload = await response.json();
       if (!response.ok) throw new Error(payload.error || "The AI service is unavailable.");
       const answer = node("div");
