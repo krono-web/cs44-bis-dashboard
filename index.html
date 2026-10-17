@@ -6,7 +6,7 @@
 <meta name="description" content="Explore preliminary teaching innovation evidence across 27 BIS units, compare undergraduate and postgraduate results, and inspect unit classifications.">
 <meta name="theme-color" content="#132b44">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
-<link rel="stylesheet" href="styles.css?v=dashboard-polish-2">
+<link rel="stylesheet" href="styles.css?v=insights-studio-1">
 <script defer src="data.js?v=87cd2690"></script>
 <script defer src="history-data.js?v=v63-exact-1"></script>
 <script defer src="dataset.js?v=single-2026-1"></script>
@@ -16,6 +16,7 @@
 <script defer src="assistant-config.js?v=assistant-1"></script>
 <script defer src="assistant.js?v=original-v63-1"></script>
 <script defer src="annual.js?v=v63-exact-1"></script>
+<script defer src="insights-studio.js?v=studio-1"></script>
 </head>
 <body>
 <a class="skip" href="#main">Skip to dashboard</a>
@@ -24,6 +25,7 @@
   <div class="rail-label">WORKSPACE</div>
   <nav aria-label="Dashboard sections">
     <a class="nav-link active" href="#overview"><span aria-hidden="true">▦</span> Overview</a>
+    <a class="nav-link" href="#studio"><span aria-hidden="true">✦</span> Insights studio</a>
     <a class="nav-link" href="#annual-trends"><span aria-hidden="true">⌁</span> Annual trends</a>
     <a class="nav-link" href="#weekly-trends"><span aria-hidden="true">↗</span> Weekly trends</a>
     <a class="nav-link" href="#insights"><span aria-hidden="true">◫</span> Evidence breakdown</a>
@@ -55,6 +57,20 @@
         <p class="chart-foot">The percentage view divides positive units by analysed units within each cohort, so UG and PG can be compared despite different cohort sizes. Categories overlap and percentages do not add to 100%. Items and Score show evidence volume, not prevalence.</p>
       </section>
     </div>
+  </section>
+  <section id="studio" aria-labelledby="studio-title">
+    <div class="section-heading studio-heading"><div><p class="eyebrow">INTERACTIVE ANALYTICS</p><h2 id="studio-title">Insights studio</h2><p class="section-intro">Explore how recorded teaching evidence changes by year, category, cohort and outline section.</p></div><div class="studio-actions"><button id="theme-toggle" class="icon-button" type="button" aria-pressed="false">◐ Dark mode</button><button id="summary-copy" class="secondary-button" type="button">Copy executive summary</button><button id="summary-download" class="secondary-button" type="button">Download summary</button></div></div>
+    <div class="year-player panel"><div><span class="year-player-label">Year story</span><strong id="studio-year">2024</strong></div><div class="year-track" role="group" aria-label="Select a year"><button type="button" data-studio-year="2024" aria-pressed="true">2024</button><span></span><button type="button" data-studio-year="2025" aria-pressed="false">2025</button><span></span><button type="button" data-studio-year="2026" aria-pressed="false">2026</button></div><button id="year-play" class="play-button" type="button" aria-label="Play annual animation">▶ Play</button></div>
+    <div id="change-cards" class="change-cards" aria-live="polite"></div>
+    <div class="studio-grid">
+      <section class="panel heatmap-panel"><div class="panel-head"><div><h2>Annual change heatmap</h2><p>Share of the same 22 courses with positive evidence</p></div><span class="mini-badge">2024–2026</span></div><div id="annual-heatmap" class="heatmap-wrap"></div><p class="chart-foot">Darker cells indicate a larger share of courses. Select a cell to highlight its year and category. Percentages are prevalence, not teaching-quality scores.</p></section>
+      <section class="panel radar-panel"><div class="panel-head"><div><h2>UG / PG teaching profile</h2><p>Positive-unit rate across eight categories</p></div><span id="radar-year-label" class="mini-badge">2024</span></div><div id="cohort-radar" class="radar-chart"></div><p class="chart-foot">The radar compares prevalence within each cohort. Categories overlap and are independently measured.</p></section>
+    </div>
+    <div class="studio-grid lower">
+      <section class="panel timeline-panel"><div class="panel-head"><div><h2>Course three-year timeline</h2><p>Follow one common course across all years</p></div><label class="select-field inline"><span>Course</span><select id="timeline-unit" aria-label="Course timeline"></select></label></div><div id="course-timeline" class="course-timeline"></div></section>
+      <section class="panel flow-panel"><div class="panel-head"><div><h2>Evidence flow</h2><p>Outline sections → teaching categories → study level</p></div><span id="flow-year-label" class="mini-badge">2024</span></div><div id="evidence-flow" class="sankey-chart"></div><p class="chart-foot">Flow width represents positive evidence records. Hover or focus a path for its exact source, category and cohort.</p></section>
+    </div>
+    <section class="panel smart-insights"><div class="panel-head"><div><h2>Smart insight cards</h2><p>Automatically generated observations grounded in the selected year’s saved evidence</p></div><button id="ask-insights" class="text-button" type="button">Ask the AI assistant about these insights ↗</button></div><div id="smart-insight-cards" class="smart-card-grid"></div></section>
   </section>
   <section id="annual-trends" aria-labelledby="annual-title">
     <div class="section-heading"><div><p class="eyebrow">HISTORICAL COMPARISON · VERIFIED V6.3</p><h2 id="annual-title">2024–2026 evidence trends</h2></div><span id="annual-context" class="muted" aria-live="polite"></span></div>
