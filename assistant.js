@@ -62,7 +62,7 @@
     document.querySelectorAll("[data-ask]").forEach(b => b.disabled = true);
     try {
       const routedDataset = cross ? "multi" : requestedYears.length === 1 ? String(requestedYears[0]) : (window.CS44_DATASET || "original");
-      const response = await fetch(`${api}/api/ask`, { method: "POST", headers: { "Content-Type": "application/json", "Authorization": `Bearer ${$("ask-access").value}` }, body: JSON.stringify({ question, filters: filters(), dataset: routedDataset }), signal: AbortSignal.timeout(45000) });
+      const response = await fetch(`${api}/api/ask`, { method: "POST", headers: { "Content-Type": "application/json", "Authorization": `Bearer ${$("ask-access").value}` }, body: JSON.stringify({ question, filters: filters(), dataset: routedDataset }), signal: AbortSignal.timeout(70000) });
       const payload = await response.json();
       if (!response.ok) throw new Error(payload.error || "The AI service is unavailable.");
       const answer = node("div");
@@ -77,7 +77,7 @@
       });
       answer.append(node("p", payload.limitation, "ask-limit")); $("ask-answer").replaceChildren(answer);
       $("ask-status").textContent = "AI explanation · verify the cited source text";
-    } catch (error) { $("ask-status").textContent = `${error.name === "TimeoutError" ? "AI request timed out." : error.message} Source search remains available below.`; }
+    } catch (error) { $("ask-status").textContent = `${error.name === "TimeoutError" ? "The AI service did not respond within 70 seconds. Please try again; temporary Gemini capacity or rate limits can cause this." : error.message} Source search remains available below.`; }
     finally { $("ask-submit").disabled = false; $("ask-form").removeAttribute("aria-busy"); document.querySelectorAll("[data-ask]").forEach(b => b.disabled = false); }
   }
   $("ask-form").addEventListener("submit", ask); $("ask-more").addEventListener("click", more);

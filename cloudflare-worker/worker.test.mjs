@@ -44,6 +44,8 @@ test("Gemini structured answer must cite supplied IDs", async () => {
   globalThis.fetch = async (_url, options) => {
     const request = JSON.parse(options.body);
     assert.equal(request.generationConfig.responseMimeType, "application/json");
+    assert.equal(request.generationConfig.maxOutputTokens, 900);
+    assert.ok(request.contents[0].parts[0].text.length > 0);
     assert.match(request.systemInstruction.parts[0].text, /Answer in English only/);
     const id = result.records[0].id;
     return new Response(JSON.stringify({ candidates:[{content:{parts:[{text:JSON.stringify({claims:[{text:"Supported",sources:[id]}],limitation:"Automated evidence."})}]}}] }), {status:200,headers:{"Content-Type":"application/json"}});
