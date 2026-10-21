@@ -207,25 +207,23 @@ function renderSections(){
 function renderSourceComparison(){
  const units=evaluated();
  const rows=order.map(code=>{
-  let assessment=0,activities=0;
-  for(const u of units) for(const e of evidenceFor(u.code,code)) if(e.k==="p"){
-   if(e.s==="Assessment"||e.s==="Assessment detail") assessment++;
-   if(e.s==="Weekly schedule") activities++;
-  }
-  return {code,assessment,activities,total:assessment+activities};
+  const counts=SECTIONS.map(section=>units.reduce((sum,u)=>sum+evidenceFor(u.code,code).filter(e=>e.k==="p"&&e.s===section).length,0));
+  return {code,counts,total:counts.reduce((sum,n)=>sum+n,0)};
  }).sort((a,b)=>b.total-a.total||order.indexOf(a.code)-order.indexOf(b.code));
- const max=Math.max(1,...rows.flatMap(r=>[r.assessment,r.activities]));
+ const max=Math.max(1,...rows.flatMap(r=>r.counts));
+ $("source-compare-legend").innerHTML=SECTIONS.map((section,i)=>'<span><i class="dot s'+i+'"></i> '+section+'</span>').join("");
  $("source-comparison").innerHTML=rows.map(r=>{
   const denom=r.total||1;
-  const av=state.sourceCompare==="rate"?100*r.assessment/denom:r.assessment;
-  const lv=state.sourceCompare==="rate"?100*r.activities/denom:r.activities;
-  const aw=state.sourceCompare==="rate"?av:100*av/max;
-  const lw=state.sourceCompare==="rate"?lv:100*lv/max;
   const label=v=>state.sourceCompare==="rate"?v.toFixed(0)+"%":v;
-  return '<div class="source-compare-row'+(r.total?'':' zero')+'"><span class="compare-name">'+names[r.code]+'</span><div class="source-pair"><div class="source-bar-line"><span class="source-tag">Assessment</span><span class="compare-track"><span class="compare-fill assessment" style="display:block;width:'+aw+'%"></span></span><strong>'+label(av)+'</strong></div><div class="source-bar-line"><span class="source-tag">Activities</span><span class="compare-track"><span class="compare-fill activity" style="display:block;width:'+lw+'%"></span></span><strong>'+label(lv)+'</strong></div></div></div>';
+  const bars=r.counts.map((count,i)=>{
+   const value=state.sourceCompare==="rate"?100*count/denom:count;
+   const width=state.sourceCompare==="rate"?value:100*value/max;
+   return '<div class="source-bar-line"><span class="source-tag">'+SECTIONS[i]+'</span><span class="compare-track"><span class="compare-fill s'+i+'" style="display:block;width:'+width+'%"></span></span><strong>'+label(value)+'</strong></div>';
+  }).join("");
+  return '<div class="source-compare-row'+(r.total?'':' zero')+'"><span class="compare-name">'+names[r.code]+'</span><div class="source-pair">'+bars+'</div></div>';
  }).join("");
- const totalA=rows.reduce((n,r)=>n+r.assessment,0),totalL=rows.reduce((n,r)=>n+r.activities,0);
- $("source-compare-foot").textContent=(state.sourceCompare==="rate"?"Within each category, the two percentages divide Assessment and Learning Activities records and total 100% when either source has evidence. ":"Bars use a shared item-count scale across all categories. ")+`Current scope: ${units.length} analysed units · ${totalA} assessment records · ${totalL} learning-activity records. Other outline sections are excluded.`;
+ const totals=SECTIONS.map((_,i)=>rows.reduce((sum,row)=>sum+row.counts[i],0));
+ $("source-compare-foot").textContent=(state.sourceCompare==="rate"?"Within each category, the five percentages divide all positive records and total 100% when evidence exists. ":"Bars use a shared item-count scale across all categories and sources. ")+`Current scope: ${units.length} analysed units · ${rows.reduce((sum,row)=>sum+row.total,0)} positive records. `+SECTIONS.map((section,i)=>`${section}: ${totals[i]}`).join(" · ")+".";
 }
 const RANK_FOOT={
  share:"This category's positive items as a share of all positive items in the same unit. This removes the advantage a longer outline would otherwise have.",
