@@ -209,20 +209,19 @@ function renderSourceComparison(){
  const rows=order.map(code=>{
   const counts=SECTIONS.map(section=>units.reduce((sum,u)=>sum+evidenceFor(u.code,code).filter(e=>e.k==="p"&&e.s===section).length,0));
   return {code,counts,total:counts.reduce((sum,n)=>sum+n,0)};
- }).sort((a,b)=>b.total-a.total||order.indexOf(a.code)-order.indexOf(b.code));
+ });
  const max=Math.max(1,...rows.flatMap(r=>r.counts));
- $("source-compare-legend").innerHTML=SECTIONS.map((section,i)=>'<span><i class="dot s'+i+'"></i> '+section+'</span>').join("");
- $("source-comparison").innerHTML=rows.map(r=>{
-  const denom=r.total||1;
-  const label=v=>state.sourceCompare==="rate"?v.toFixed(0)+"%":v;
-  const bars=r.counts.map((count,i)=>{
+ const totals=SECTIONS.map((_,i)=>rows.reduce((sum,row)=>sum+row.counts[i],0));
+ $("source-comparison").innerHTML=SECTIONS.map((section,i)=>{
+  const bars=rows.map(row=>{
+   const count=row.counts[i],denom=row.total||1;
    const value=state.sourceCompare==="rate"?100*count/denom:count;
    const width=state.sourceCompare==="rate"?value:100*value/max;
-   return '<div class="source-bar-line"><span class="source-tag">'+SECTIONS[i]+'</span><span class="compare-track"><span class="compare-fill s'+i+'" style="display:block;width:'+width+'%"></span></span><strong>'+label(value)+'</strong></div>';
+   const label=state.sourceCompare==="rate"?value.toFixed(0)+"%":value;
+   return '<div class="source-category-row'+(count?'':' zero')+'"><span>'+names[row.code]+'</span><span class="compare-track"><span class="compare-fill s'+i+'" style="display:block;width:'+width+'%"></span></span><strong>'+label+'</strong></div>';
   }).join("");
-  return '<div class="source-compare-row'+(r.total?'':' zero')+'"><span class="compare-name">'+names[r.code]+'</span><div class="source-pair">'+bars+'</div></div>';
+  return '<section class="source-card" aria-label="'+esc(section)+' evidence"><div class="source-card-head"><div><i class="dot s'+i+'"></i><h3>'+section+'</h3></div><strong>'+totals[i]+' items</strong></div><div class="source-card-bars">'+bars+'</div></section>';
  }).join("");
- const totals=SECTIONS.map((_,i)=>rows.reduce((sum,row)=>sum+row.counts[i],0));
  $("source-compare-foot").textContent=(state.sourceCompare==="rate"?"Within each category, the five percentages divide all positive records and total 100% when evidence exists. ":"Bars use a shared item-count scale across all categories and sources. ")+`Current scope: ${units.length} analysed units · ${rows.reduce((sum,row)=>sum+row.total,0)} positive records. `+SECTIONS.map((section,i)=>`${section}: ${totals[i]}`).join(" · ")+".";
 }
 const RANK_FOOT={
