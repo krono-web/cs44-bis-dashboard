@@ -4,11 +4,18 @@
   if (!data?.units) return;
   const host = document.getElementById("weekly-trends");
   const select = document.getElementById("trend-category");
+  const unitSelect = document.getElementById("trend-unit");
   for (const category of data.categories) {
     const option = document.createElement("option");
     option.value = category.code;
     option.textContent = category.name || category.code.replaceAll("_", " ");
     select.appendChild(option);
+  }
+  for (const unit of data.units.filter(u => u.status === "selected").sort((a,b) => a.code.localeCompare(b.code))) {
+    const option = document.createElement("option");
+    option.value = unit.code;
+    option.textContent = `${unit.code} · ${unit.title}`;
+    unitSelect.appendChild(option);
   }
   const records = [];
   for (const unit of data.units.filter(u => u.status === "selected")) {
@@ -46,13 +53,18 @@
   }
   function render() {
     const level = document.querySelector('[data-level][aria-pressed="true"]')?.dataset.level || "ALL";
-    const selected = records.filter(r => select.value === "ALL" || r.category === select.value);
+    const selectedCategory = records.filter(r => select.value === "ALL" || r.category === select.value);
+    const selected = selectedCategory.filter(r => unitSelect.value === "ALL" || r.unit === unitSelect.value);
     const scoped = selected.filter(r => level === "ALL" || r.level === level);
-    document.getElementById("trend-context").textContent = `${level === "ALL" ? "All units" : level} · ${scoped.length} positive weekly category-evidence records`;
+    const unit = data.units.find(u => u.code === unitSelect.value);
+    const scopeName = unit ? `${unit.code} (${unit.level})` : (level === "ALL" ? "All units" : level);
+    document.getElementById("trend-context").textContent = `${scopeName} · ${scoped.length} positive weekly category-evidence records`;
     chart("weekly-volume", [{name:"Positive evidence records",color:"#237e91",values:weeks.map(w=>scoped.filter(r=>r.week===w).length)}], "Positive evidence records by week");
     chart("weekly-cohorts", ["UG","PG"].map((level,i)=>({name:level,color:i?"#a96924":"#3165ad",dashed:!!i,values:weeks.map(w=>new Set(selected.filter(r=>r.week===w && r.level===level).map(r=>r.unit)).size)})), "Units with positive weekly evidence");
+    document.getElementById("weekly-cohort-foot").textContent = unit ? `${unit.code} is a ${unit.level} unit. The chart shows whether this course has a positive match in each week for the selected teaching category.` : "Full UG and PG cohorts; independent of the study-level filter. Each unit is counted once per week. Cohort sizes differ; these are counts, not rates.";
   }
   select.addEventListener("change", render);
+  unitSelect.addEventListener("change", render);
   document.querySelectorAll("[data-level], #reset, #empty-reset").forEach(button=>button.addEventListener("click",()=>queueMicrotask(render)));
   render();
 })();

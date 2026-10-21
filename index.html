@@ -11,7 +11,7 @@
 <script defer src="history-data.js?v=20261021-3"></script>
 <script defer src="dataset.js?v=20261021-3"></script>
 <script defer src="app.js?v=20261021-3"></script>
-<script defer src="trends.js?v=weekly-1"></script>
+<script defer src="trends.js?v=course-filter-1"></script>
 <script defer src="evidence-core.js?v=english-assistant-1"></script>
 <script defer src="assistant-config.js?v=assistant-1"></script>
 <script defer src="assistant.js?v=timeout-retry-1"></script>
@@ -78,11 +78,11 @@
   </section>
   <section id="weekly-trends" aria-labelledby="trends-title">
     <div class="section-heading"><div><p class="eyebrow">WITHIN-SEMESTER PATTERNS</p><h2 id="trends-title">Weekly evidence trends</h2></div></div>
-    <div class="filter-toolbar"><label class="select-field"><span>Teaching category</span><select id="trend-category"><option value="ALL">All categories</option></select></label><span id="trend-context" class="muted" aria-live="polite"></span></div>
+    <div class="filter-toolbar"><div class="trend-filters"><label class="select-field"><span>Teaching category</span><select id="trend-category"><option value="ALL">All categories</option></select></label><label class="select-field"><span>Course</span><select id="trend-unit"><option value="ALL">All units</option></select></label></div><span id="trend-context" class="muted" aria-live="polite"></span></div>
     <p class="chart-foot">Teaching weeks from the saved 2026 outlines, pooled across sessions; these are not historical changes between snapshots. Only positive, week-labelled records from Weekly schedule are included. Zero means no recorded match, not no teaching activity. A sentence matching multiple categories counts once in each category.</p>
     <div class="trend-grid">
       <section class="panel"><div class="panel-head"><div><h2>Weekly evidence volume</h2><p>Positive category-evidence records · follows the study-level filter</p></div></div><div id="weekly-volume" class="trend-chart"></div></section>
-      <section class="panel"><div class="panel-head"><div><h2>UG / PG weekly participation</h2><p>Distinct units with a positive match each week</p></div></div><div id="weekly-cohorts" class="trend-chart"></div><p class="chart-foot">Full UG and PG cohorts; independent of the study-level filter. Each unit is counted once per week. Cohort sizes differ; these are counts, not rates.</p></section>
+      <section class="panel"><div class="panel-head"><div><h2>UG / PG weekly participation</h2><p>Distinct units with a positive match each week</p></div></div><div id="weekly-cohorts" class="trend-chart"></div><p class="chart-foot" id="weekly-cohort-foot">Full UG and PG cohorts; independent of the study-level filter. Each unit is counted once per week. Cohort sizes differ; these are counts, not rates.</p></section>
     </div>
   </section>
   <section id="insights" aria-labelledby="insights-title">
