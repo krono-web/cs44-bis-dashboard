@@ -1,0 +1,27 @@
+{
+  "version": "2026-10-21-v6.3.1-hybrid-amendment",
+  "date": "2026-10-21",
+  "baseTaxonomyVersion": "2026-10-07-v6.3-client-review",
+  "ruleCountBefore": 48,
+  "ruleCountAfter": 48,
+  "category": "hybrid_learning",
+  "rule": "mixed face-to-face and online",
+  "addedPatterns": [
+    "online recorded lecture + on-campus tutorial",
+    "online recorded lecture + on campus tutorial",
+    "recorded online lecture + on-campus tutorial",
+    "recorded online lecture + on campus tutorial"
+  ],
+  "rationale": "An explicit combination of recorded online lectures and on-campus tutorials describes a hybrid delivery model.",
+  "affectedUnits": {
+    "2024": [
+      "INFS6071"
+    ],
+    "2025": [
+      "INFS6071"
+    ],
+    "2026": [
+      "INFS6071"
+    ]
+  }
+}

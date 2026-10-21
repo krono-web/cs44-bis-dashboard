@@ -7,7 +7,7 @@
   const esc = v => String(v).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   h.years[2026].categories.forEach(c => { const o = document.createElement("option"); o.value = c.code; o.textContent = c.name; $("annual-category").append(o); });
   $("annual-category").value = "project_problem_based";
-  $("annual-baseline").textContent = `All three years use the same ${h.ruleCount}-rule taxonomy (${h.taxonomyVersion}). The recomputed 2026 dataset exactly reproduces the original dashboard's category results and evidence records. Missing outlines are excluded, not counted as zero evidence.`;
+  $("annual-baseline").textContent = `All three years use the same ${h.ruleCount}-rule taxonomy (${h.taxonomyVersion}). The Hybrid Learning rule recognises an explicit combination of recorded online lectures and on-campus tutorials. Missing outlines are excluded, not counted as zero evidence.`;
   function rows() {
     const category = $("annual-category").value, common = $("annual-cohort").value === "common";
     return years.map(year => {

@@ -10,7 +10,7 @@
   select.value = CS44_DATASET;
   select.addEventListener("change", () => { const url = new URL(location.href); url.searchParams.set("dataset", select.value); location.href = url.href; });
   const data = window.CS44_DATA;
-  document.getElementById("dataset-note").textContent = `${data.meta.year} outlines · verified ${history.ruleCount}-rule v6.3 scoring · all dashboard sections and source search use this year.`;
+  document.getElementById("dataset-note").textContent = `${data.meta.year} outlines · verified ${history.ruleCount}-rule v6.3.1 scoring · all dashboard sections and source search use this year.`;
   document.querySelector(".rail-tag").textContent = `BIS · ${data.meta.year}`;
   if (CS44_DATASET === "original") return;
   document.querySelector(".snapshot>span:last-child").textContent = `${data.meta.year} outlines · harmonized baseline · captured ${data.meta.captureDate.slice(0,10)}`;
@@ -19,9 +19,9 @@
   note.textContent = `Teaching weeks from the saved ${data.meta.year} outlines, pooled across sessions. This chart shows within-semester patterns, not annual change. Only positive week-labelled records are included. Zero means no recorded match. Multi-category matches count separately.`;
   document.querySelector("#method .method-grid").replaceChildren();
   const p = document.createElement("p");
-  p.textContent = `These ${data.meta.year} outlines are classified with the recovered ${data.meta.ruleVersion} taxonomy (${history.ruleCount} rules), identically for 2024, 2025 and 2026. The 2026 recomputation was checked against every saved original result and evidence record. Semester 2 is preferred, then Semester 1, then another published session in the same year. Missing outlines are excluded from rates. Results are automated, preliminary and not teaching-quality ratings.`;
+  p.textContent = `These ${data.meta.year} outlines are classified with the ${data.meta.ruleVersion} taxonomy (${history.ruleCount} rules), identically for 2024, 2025 and 2026. Version 6.3.1 adds an explicit Hybrid Learning match for a recorded online lecture combined with an on-campus tutorial; all other rules are unchanged. Semester 2 is preferred, then Semester 1, then another published session in the same year. Missing outlines are excluded from rates. Results are automated, preliminary and not teaching-quality ratings.`;
   document.querySelector("#method .method-grid").append(p);
-  document.querySelector("#method .source-line").textContent = `Source pipeline commit: a3475d9cce9b54d48329daadbf974e9f174cbc28. Rule file SHA-256: ${history.taxonomySha256}. Capture: ${data.meta.captureDate}.`;
+  document.querySelector("#method .source-line").textContent = `Source pipeline commit: a3475d9cce9b54d48329daadbf974e9f174cbc28. Baseline rule file SHA-256: ${history.taxonomySha256}. Hybrid amendment: taxonomy-amendment-v6.3.1.json. Capture: ${data.meta.captureDate}.`;
   document.querySelector(".page-footer>span:last-child").textContent = `${data.meta.year} · consistent historical baseline`;
   document.querySelector(".ask-disclaimer").textContent = `Preliminary automated ${data.meta.year} classifications under the common historical baseline. No human validation recorded. Multi-category matches count separately. No match does not mean absence. Source links may differ from the saved capture.`;
 })();

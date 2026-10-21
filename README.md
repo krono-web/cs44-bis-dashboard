@@ -15,7 +15,7 @@ The overview includes a cohort-normalised UG/PG percentage comparison. The
 evidence breakdown also compares positive records found in assessment sections
 with records found in weekly learning activities. A page glossary explains the
 main analytical terms and interpretation limits. These displays aggregate the
-saved v6.3 results; they do not change or re-run the classification rules.
+saved v6.3.1 results; they do not change or re-run the classification rules.
 
 ## Files
 
@@ -25,7 +25,8 @@ saved v6.3 results; they do not change or re-run the classification rules.
 | `styles.css` | Presentation |
 | `app.js` | Rendering and interaction |
 | `data.js` | The saved analysis — units, categories, evidence text |
-| `history-data.js` | 2024–2026 results under the recovered v6.3 rules |
+| `history-data.js` | 2024–2026 results under the recovered v6.3 rules plus the v6.3.1 Hybrid amendment |
+| `taxonomy-amendment-v6.3.1.json` | Auditable Hybrid Learning phrase addition and affected units |
 | `dataset.js` | Year switching |
 | `annual.js` | Annual trend charts |
 | `trends.js` | Weekly trend charts |
@@ -36,7 +37,8 @@ saved v6.3 results; they do not change or re-run the classification rules.
 ## Where the numbers come from
 
 - Text: the saved capture of the public unit outlines, 11 September 2026.
-- Rules: taxonomy v6.3, 48 scoring rules, 7 October 2026.
+- Rules: taxonomy v6.3.1, 48 scoring rules, 21 October 2026.
+- Hybrid amendment: `online recorded lecture + on-campus tutorial` and spelling variants now satisfy the existing mixed online/on-campus rule; no category or rule was added.
 - Scores: produced by `src/run_pipeline.py` in the project repository against that
   saved text, not by a database run. No database batch matching these rules exists
   yet, so these figures cannot be reconciled against `database/reports/`.
@@ -66,7 +68,7 @@ The page now includes all-section source search via evidence-core.js and assista
 
 ## Historical comparison
 
-The original 2026 `data.js` is byte-identical to the provided repository (SHA-256 `10A429F34C551D9C12943A16C64D8BBEF9D54A44777CFE4B5625B05F6344C776`). The recovered 48-rule v6.3 configuration was verified by reproducing every original 2026 unit/category summary, evidence item, review item, matched phrase, score and failure-register entry. The same configuration is then applied to the collected 2024 and 2025 outlines. Annual charts default to the 22 courses available in all three years; the all-available option reports changing coverage explicitly.
+The recovered 48-rule v6.3 configuration was verified against every original 2026 unit/category summary, evidence item, review item, matched phrase, score and failure-register entry. Version 6.3.1 then applies the documented Hybrid Learning phrase amendment consistently to 2024, 2025 and 2026. Annual charts default to the 22 courses available in all three years; the all-available option reports changing coverage explicitly.
 
 ## Free-tier AI deployment
 
